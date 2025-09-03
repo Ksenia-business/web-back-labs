@@ -8,4 +8,4 @@ def start():
         "   <body>" \
         "       <h1>web-сервер на flask</h1>" \
         "   </body>" \
-        "<html>"
+        "</html>"
