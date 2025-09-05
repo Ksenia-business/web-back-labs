@@ -6,20 +6,20 @@ app = Flask(__name__)
 def not_found(err):
     return "нет такой страницы", 404
 
-@app.route("/web")
+@app.route("/lab1/web")
 def web():
     return """<!doctype html>
         <html>
            <body>
                <h1>web-сервер на flask</h1>
-               <a href="/author">author</a>
+               <a href="/lab1/author">author</a>
            </body>
         </html>""", 200, {
             'X-Server': 'sample',
             'Content-Type': 'text/plain; charset=utf-8'
             }
 
-@app.route("/author")
+@app.route("/lab1/author")
 def author():
     name = "Чепурнова Ксения Анатольевна"
     group = "ФБИ-31"
@@ -31,11 +31,11 @@ def author():
                <p>Студент: """ + name + """</p>
                <p>Группа: """ + group + """</p>
                <p>Факультет: """ + faculty + """</p>
-               <a href="/web">web</a>
+               <a href="/lab1/web">web</a>
            </body>
         </html>"""
 
-@app.route("/image")
+@app.route("/lab1/image")
 def image():
     image_path = url_for("static", filename="oak.jpg")
     css_path = url_for("static", filename="lab1.css")
@@ -57,7 +57,7 @@ def image():
 
 count = 0
 
-@app.route("/counter")
+@app.route("/lab1/counter")
 def counter():
     global count
     count += 1
@@ -75,12 +75,12 @@ def counter():
         Запрошенный адрес: ''' + url + '''<br>
         Ваш IP адрес: ''' + client_ip + '''<br>
         <hr>
-        <a href="/clean_counter">Очистить счетчик</a>
+        <a href="/lab1/clean_counter">Очистить счетчик</a>
     </body>
 </html>
 '''
 
-@app.route("/clean_counter")
+@app.route("/lab1/clean_counter")
 def clean_counter():
     global count
     count = 0
@@ -92,14 +92,14 @@ def clean_counter():
         <h2>Счетчик очищен</h2>
         Текущее значение счетчика: ''' + str(count) + '''
         <hr>
-        <a href="/counter">Вернуться к счетчику</a>
+        <a href="/lab1/counter">Вернуться к счетчику</a>
     </body>
 </html>
 '''
 
-@app.route("/info")
+@app.route("/lab1/info")
 def info():
-    return redirect("/author")
+    return redirect("/lab1/author")
 
 @app.route("/lab1/created")
 def created():
