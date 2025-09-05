@@ -74,6 +74,25 @@ def counter():
         Дата и время: ''' + str(time) + '''<br>
         Запрошенный адрес: ''' + url + '''<br>
         Ваш IP адрес: ''' + client_ip + '''<br>
+        <hr>
+        <a href="/clean_counter">Очистить счетчик</a>
+    </body>
+</html>
+'''
+
+@app.route("/clean_counter")
+def clean_counter():
+    global count
+    count = 0
+
+    return '''
+<!doctype html>
+<html>
+    <body>
+        <h2>Счетчик очищен</h2>
+        Текущее значение счетчика: ''' + str(count) + '''
+        <hr>
+        <a href="/counter">Вернуться к счетчику</a>
     </body>
 </html>
 '''
