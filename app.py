@@ -174,3 +174,99 @@ def created():
     </body>
 </html>
 ''', 201
+
+@app.route("/400")
+def bad_request():
+    return '''
+<!doctype html>
+<html>
+    <head>
+        <title>400 Bad Request</title>
+    </head>
+    <body>
+        <h1>400 Bad Request</h1>
+        <p>Сервер не может или не будет обрабатывать запрос из-за чего-то, что воспринимается как ошибка клиента (например, неправильный синтаксис, формат или маршрутизация запроса).</p>
+        <a href="/">На главную</a>
+    </body>
+</html>
+''', 400
+
+@app.route("/401")
+def unauthorized():
+    return '''
+<!doctype html>
+<html>
+    <head>
+        <title>401 Unauthorized</title>
+    </head>
+    <body>
+        <h1>401 Unauthorized</h1>
+        <p>Хотя стандарт HTTP определяет этот ответ как «неавторизованный», семантически он означает «неаутентифицированный». Это значит, что клиент должен аутентифицировать себя, чтобы получить запрошенный ответ.</p>
+        <a href="/">На главную</a>
+    </body>
+</html>
+''', 401
+
+@app.route("/402")
+def payment_required():
+    return '''
+<!doctype html>
+<html>
+    <head>
+        <title>402 Payment Required</title>
+    </head>
+    <body>
+        <h1>402 Payment Required</h1>
+        <p>Этот код ответа зарезервирован для использования в будущем. Первоначальной целью создания этого кода было использование его для цифровых платежных систем, однако он используется очень редко и стандартного соглашения не существует.</p>
+        <a href="/">На главную</a>
+    </body>
+</html>
+''', 402
+
+@app.route("/403")
+def forbidden():
+    return '''
+<!doctype html>
+<html>
+    <head>
+        <title>403 Forbidden</title>
+    </head>
+    <body>
+        <h1>403 Forbidden</h1>
+        <p>Клиент не имеет прав доступа к контенту, то есть он неавторизован, поэтому сервер отказывается предоставить запрошенный ресурс. В отличие от 401 Unauthorized, личность клиента известна серверу.</p>
+        <a href="/">На главную</a>
+    </body>
+</html>
+''', 403
+
+@app.route("/405")
+def method_not_allowed():
+    return '''
+<!doctype html>
+<html>
+    <head>
+        <title>405 Method Not Allowed</title>
+    </head>
+    <body>
+        <h1>405 Method Not Allowed</h1>
+        <p>Метод запроса известен серверу, но не поддерживается целевым ресурсом. Например, API может не разрешать вызов DELETE для удаления ресурса.</p>
+        <a href="/">На главную</a>
+    </body>
+</html>
+''', 405
+
+@app.route("/418")
+def teapot():
+    return '''
+<!doctype html>
+<html>
+    <head>
+        <title>418 I'm a teapot</title>
+    </head>
+    <body>
+        <h1>418 I'm a teapot</h1>
+        <p>«Шуточный» ответ: сервер отклоняет попытку заварить кофе в чайнике.</p>
+        <a href="/">На главную</a>
+    </body>
+</html>
+''', 418
