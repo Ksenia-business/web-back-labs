@@ -66,7 +66,26 @@ def lab1():
 
 @app.errorhandler(404)
 def not_found(err):
-    return "нет такой страницы", 404
+    css_path = url_for("static", filename="error.css")
+    image_path = url_for("static", filename="404.jpg")
+    
+    return '''
+<!doctype html>
+<html>
+    <head>
+        <title>404 - Страница не найдена</title>
+        <link rel="stylesheet" href="''' + css_path + '''">
+    </head>
+    <body>
+        <div class="error-container">
+            <img src="''' + image_path + '''" class="404-image">
+            <h1>404</h1>
+            <h2>Страница не найдена</h2>
+            <p>Запрашиваемая страница не существует или была перемещена.</p>
+        </div>
+    </body>
+</html>
+''', 404
 
 @app.route("/lab1/web")
 def web():
