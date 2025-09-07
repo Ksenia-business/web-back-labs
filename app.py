@@ -289,3 +289,32 @@ def teapot():
     </body>
 </html>
 ''', 418
+
+@app.errorhandler(500)
+def internal_server_error(err):
+    css_path = url_for("static", filename="error500.css")
+    image_path = url_for("static", filename="error500.png")
+
+    
+    return '''
+<!doctype html>
+<html>
+    <head>
+        <title>500 - Ошибка сервера</title>
+        <link rel="stylesheet" href="''' + css_path + '''">
+    </head>
+    <body>
+        <div class="error-container">
+            <h1>500</h1>
+            <h2>Внутренняя ошибка сервера</h2>
+            <p>Произошла непредвиденная ошибка на сервере. Пожалуйста, попробуйте позже.</p>
+            <img src="''' + image_path + '''" class="error500-image">
+        </div>
+    </body>
+</html>
+''', 500
+
+@app.route("/lab1/error")
+def cause_error():
+    result = 50 / 0
+    return "Этот код никогда не выполнится"
