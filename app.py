@@ -54,6 +54,24 @@ def lab1():
                 зовые возможности.
             </p>
             <a href="/">На главную</a>
+
+            <h2>Список роутов</h2>
+            <ul>
+                <li><a href="/lab1/web">/lab1/web</a> - Веб-сервер на Flask</li>
+                <li><a href="/lab1/author">/lab1/author</a> - Информация об авторе</li>
+                <li><a href="/lab1/image">/lab1/image</a> - Изображение дуба</li>
+                <li><a href="/lab1/counter">/lab1/counter</a> - Счетчик посещений</li>
+                <li><a href="/lab1/clean_counter">/lab1/clean_counter</a> - Очистка счетчика</li>
+                <li><a href="/lab1/info">/lab1/info</a> - Перенаправление на автора</li>
+                <li><a href="/lab1/created">/lab1/created</a> - Страница создания (201)</li>
+                <li><a href="/lab1/error">/lab1/error</a> - Вызов ошибки сервера</li>
+                <li><a href="/400">/400</a> - Ошибка 400. Bad Request</li>
+                <li><a href="/401">/401</a> - Ошибка 401. Unauthorized</li>
+                <li><a href="/402">/402</a> - Ошибка 402. Payment Required</li>
+                <li><a href="/403">/403</a> - Ошибка 403. Forbidden</li>
+                <li><a href="/405">/405</a> - Ошибка 405. Method Not Allowed</li>
+                <li><a href="/418">/418</a> - Ошибка 418. I'm a teapot</li>
+            </ul>
         </nav>
         
         <footer>
