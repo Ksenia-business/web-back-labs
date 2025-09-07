@@ -120,7 +120,7 @@ def author():
 def image():
     image_path = url_for("static", filename="oak.jpg")
     css_path = url_for("static", filename="lab1.css")
-    return '''
+    html_content = '''
 <!doctype html>
 <html>
     <head>
@@ -135,6 +135,12 @@ def image():
     </body>
 </html>
 '''
+
+    return html_content, 200, {
+            'Content-Language': 'ru',  
+            'X-Image-Type': 'nature',
+            'X-Author-Name': 'Chepurnova Ksenia'
+        }
 
 count = 0
 
