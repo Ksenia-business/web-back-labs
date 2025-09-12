@@ -64,7 +64,7 @@ def lab1():
                 <li><a href="/lab1/clean_counter">/lab1/clean_counter</a> - Очистка счетчика</li>
                 <li><a href="/lab1/info">/lab1/info</a> - Перенаправление на автора</li>
                 <li><a href="/lab1/created">/lab1/created</a> - Страница создания (201)</li>
-                <li><a href="/lab1/error">/lab1/error</a> - Вызов ошибки сервера</li>
+                <li><a href="/lab1/error">/lab1/error</a> - Вызов ошибки сервера (505)</li>
                 <li><a href="/400">/400</a> - Ошибка 400. Bad Request</li>
                 <li><a href="/401">/401</a> - Ошибка 401. Unauthorized</li>
                 <li><a href="/402">/402</a> - Ошибка 402. Payment Required</li>
@@ -82,12 +82,25 @@ def lab1():
 </html>
 '''
 
+access_log = []
+
 @app.errorhandler(404)
 def not_found(err):
+    client_ip = request.remote_addr
+    access_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    requested_url = request.url
+    
+    log_entry = {
+        'ip': client_ip,
+        'date': access_date,
+        'url': requested_url
+    }
+    access_log.append(log_entry)
+    
     css_path = url_for("static", filename="error.css")
     image_path = url_for("static", filename="404.jpg")
     
-    return '''
+    html_template = '''
 <!doctype html>
 <html>
     <head>
@@ -95,15 +108,58 @@ def not_found(err):
         <link rel="stylesheet" href="''' + css_path + '''">
     </head>
     <body>
-        <div class="error-container">
-            <img src="''' + image_path + '''" class="404-image">
-            <h1>404</h1>
-            <h2>Страница не найдена</h2>
-            <p>Запрашиваемая страница не существует или была перемещена.</p>
+        <div class="container">
+            <div class="error-section">
+                <h1 style="font-family: Comic Sans MS", cursive; color: #C41E3A;">404 - Страница не найдена</h1>
+                <p style="margin-top: 20px; color: #474A51; font-size: 30px; font-family: Comic Sans MS", cursive;">У нас что-то происходит, но мы пока сами не знаем что &#128556;.</p>
+                <p style="color: #474A51; font-family: Comic Sans MS", cursive;">Поэтому лучше перейти на другую страницу.</p>
+                <img src="''' + image_path + '''" alt="404 Error" class="error-image">
+
+                <div class="error-info">
+                    <p><strong>Ваш IP-адрес:</strong> ''' + client_ip + '''</p>
+                    <p><strong>Дата доступа:</strong> ''' + access_date + '''</p>
+                    <p><strong>Запрошенный URL:</strong> ''' + requested_url + '''</p>
+                </div>                
+                <a href="/" class="btn-home">Вернуться на главную страницу</a>
+            </div>
+            
+            <div class="log-section">
+                <h2>Журнал посещений</h2>
+                <p>История всех обращений к несуществующим страницам:</p>
+                
+                <table class="log-table">
+                    <thead>
+                        <tr>
+                            <th>IP-адрес</th>
+                            <th>Дата и время</th>
+                            <th>Запрошенный URL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+'''
+    for entry in reversed(access_log):  
+        html_template += f'''
+                        <tr>
+                            <td>{entry['ip']}</td>
+                            <td>{entry['date']}</td>
+                            <td>{entry['url']}</td>
+                        </tr>
+'''
+    
+    html_template += '''
+                    </tbody>
+                </table>
+                
+                <p style="margin-top: 20px; color: #666; font-size: 14px;">
+                    Всего записей в журнале: ''' + str(len(access_log)) + '''
+                </p>
+            </div>
         </div>
     </body>
 </html>
-''', 404
+'''
+    
+    return html_template, 404
 
 @app.route("/lab1/web")
 def web():
@@ -229,7 +285,7 @@ def bad_request():
     <body>
         <h1>400 Bad Request</h1>
         <p>Сервер не может или не будет обрабатывать запрос из-за чего-то, что воспринимается как ошибка клиента (например, неправильный синтаксис, формат или маршрутизация запроса).</p>
-        <a href="/">На главную</a>
+        <a href="/lab1">Назад</a>
     </body>
 </html>
 ''', 400
@@ -245,7 +301,7 @@ def unauthorized():
     <body>
         <h1>401 Unauthorized</h1>
         <p>Хотя стандарт HTTP определяет этот ответ как «неавторизованный», семантически он означает «неаутентифицированный». Это значит, что клиент должен аутентифицировать себя, чтобы получить запрошенный ответ.</p>
-        <a href="/">На главную</a>
+        <a href="/lab1">Назад</a>
     </body>
 </html>
 ''', 401
@@ -261,7 +317,7 @@ def payment_required():
     <body>
         <h1>402 Payment Required</h1>
         <p>Этот код ответа зарезервирован для использования в будущем. Первоначальной целью создания этого кода было использование его для цифровых платежных систем, однако он используется очень редко и стандартного соглашения не существует.</p>
-        <a href="/">На главную</a>
+        <a href="/lab1">Назад</a>
     </body>
 </html>
 ''', 402
@@ -277,7 +333,7 @@ def forbidden():
     <body>
         <h1>403 Forbidden</h1>
         <p>Клиент не имеет прав доступа к контенту, то есть он неавторизован, поэтому сервер отказывается предоставить запрошенный ресурс. В отличие от 401 Unauthorized, личность клиента известна серверу.</p>
-        <a href="/">На главную</a>
+        <a href="/lab1">Назад</a>
     </body>
 </html>
 ''', 403
@@ -293,7 +349,7 @@ def method_not_allowed():
     <body>
         <h1>405 Method Not Allowed</h1>
         <p>Метод запроса известен серверу, но не поддерживается целевым ресурсом. Например, API может не разрешать вызов DELETE для удаления ресурса.</p>
-        <a href="/">На главную</a>
+        <a href="/lab1">Назад</a>
     </body>
 </html>
 ''', 405
@@ -309,7 +365,7 @@ def teapot():
     <body>
         <h1>418 I'm a teapot</h1>
         <p>«Шуточный» ответ: сервер отклоняет попытку заварить кофе в чайнике.</p>
-        <a href="/">На главную</a>
+        <a href="/lab1">Назад</a>
     </body>
 </html>
 ''', 418
