@@ -398,3 +398,12 @@ def internal_server_error(err):
 def cause_error():
     result = 50 / 0
     return "Этот код никогда не выполнится"
+
+
+@app.route('/lab2/a')
+def a():
+    return 'без слэша'
+
+@app.route('/lab2/a/')
+def a():
+    return 'со слэшем'
