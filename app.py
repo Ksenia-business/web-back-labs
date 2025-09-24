@@ -448,3 +448,6 @@ def example():
                            lab_num=2,
                            fruits=fruits)
     
+@app.route('/lab2/')
+def lab2():
+    return render_template('lab2.html')
