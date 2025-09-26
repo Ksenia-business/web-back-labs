@@ -415,7 +415,82 @@ def flowers(flower_id):
     if flower_id >= len(flower_list):
         abort(404)
     else:
-        return "цветок: " + flower_list[flower_id]
+        return f'''
+<!doctype html>
+<html>
+    <head>
+        <title>Информация о цветке</title>
+        <link rel="stylesheet" href="/static/style.css">
+    </head>
+    <body>
+        <div class="container">
+            <h1><span class="emoji">🌸</span>Информация о цветке</h1>
+            <div class="flower-info">
+                <p><strong>Цветок:</strong> {flower_list[flower_id]}</p>
+                <p><strong>ID цветка:</strong> {flower_id}</p>
+                <p><strong>Всего цветов в базе:</strong> <span class="count-badge">{len(flower_list)}</span></p>
+            </div>
+            <div class="text-center">
+                <a href="/lab2/flowers/" class="btn">📋 Посмотреть все цветы</a>
+            </div>
+        </div>
+    </body>
+</html>
+'''
+
+@app.route('/lab2/flowers/')
+def all_flowers():
+    return f'''
+<!doctype html>
+<html>
+    <head>
+        <title>Все цветы</title>
+        <link rel="stylesheet" href="/static/style.css">
+    </head>
+    <body>
+        <div class="container">
+            <h1>Все цветы</h1>
+            <p class="text-center">Общее количество цветов: <span class="count-badge">{len(flower_list)}</span></p>
+            
+            <div class="flower-info">
+                <p><strong>Список цветов:</strong></p>
+                <p>{", ".join(flower_list)}</p>
+            </div>
+            
+            <div class="text-center">
+                <a href="/lab2/add_flower/" class="btn btn-success">Добавить цветок</a>
+                <a href="/lab2/clear_flowers/" class="btn btn-danger">Очистить список</a>
+            </div>
+        </div>
+    </body>
+</html>
+'''
+
+@app.route('/lab2/clear_flowers/')
+def clear_flowers():
+    flower_list.clear()
+    return '''
+<!doctype html>
+<html>
+    <head>
+        <title>Список очищен</title>
+        <link rel="stylesheet" href="/static/style.css">
+    </head>
+    <body>
+        <div class="container">
+            <h1><span class="emoji">🗑️</span>Список цветов очищен</h1>
+            <div class="warning">
+                <p>Все цветы были удалены из списка.</p>
+                <p>Текущее количество цветов: <span class="count-badge">0</span></p>
+            </div>
+            <div class="text-center">
+                <a href="/lab2/flowers/" class="btn">📋 Все цветы</a>
+                <a href="/lab2/add_flower/" class="btn btn-success">Добавить цветок</a>
+            </div>
+        </div>
+    </body>
+</html>
+'''
 
 @app.route('/lab2/add_flower/<name>')
 def add_flower(name):
@@ -423,14 +498,50 @@ def add_flower(name):
     return f'''
 <!doctype html>
 <html>
+    <head>
+        <title>Цветок добавлен</title>
+        <link rel="stylesheet" href="/static/style.css">
+    </head>
     <body>
-    <h1>Добавлен новый цветок</h1>
-    <p>Название нового цветка: {name} </p>
-    <p>Всего цветов: {len(flower_list)} </p>
-    <p>Полный список: {flower_list} </p>
+        <div class="container">
+            <h1><span class="emoji">✅</span>Добавлен новый цветок</h1>
+            <div class="success">
+                <p><strong>Название нового цветка:</strong> {name}</p>
+                <p><strong>Всего цветов:</strong> <span class="count-badge">{len(flower_list)}</span></p>
+                <p><strong>Полный список:</strong> {flower_list}</p>
+            </div>
+            <div class="text-center">
+                <a href="/lab2/flowers/" class="btn">📋 Все цветы</a>
+                <a href="/lab2/add_flower/" class="btn btn-success">Добавить еще</a>
+            </div>
+        </div>
     </body>
 </html>
 '''
+
+@app.route('/lab2/add_flower/')
+def add_flower_empty():
+    return '''
+<!doctype html>
+<html>
+    <head>
+        <title>Ошибка</title>
+        <link rel="stylesheet" href="/static/style.css">
+    </head>
+    <body>
+        <div class="container">
+            <div class="error">
+                <h1><span class="emoji">❌</span>Ошибка</h1>
+                <p>Вы не задали имя цветка</p>
+                <p>Используйте URL: /lab2/add_flower/название_цветка</p>
+            </div>
+            <div class="text-center">
+                <a href="/lab2/flowers/" class="btn">📋 Все цветы</a>
+            </div>
+        </div>
+    </body>
+</html>
+''', 400
 
 @app.route('/lab2/example')
 def example():
@@ -456,3 +567,4 @@ def lab2():
 def filters():
     phrase = "О <b>сколько</b> <u>нам</u> <i>открытий</i> чудных..."
     return render_template('filter.html', phrase = phrase)
+
