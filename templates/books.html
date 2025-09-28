@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список книг</title>
+    <style>
+        body {
+            background-color: Linen;
+            color: Indigo;
+            font-family: Arial;
+            margin: 0px;
+        }
+
+        main {
+            background-color: AliceBlue;
+            color: Indigo;
+            font-family: Arial;
+            margin: 10px 20px 42px;
+            padding: 10px;
+        }
+
+        header {
+            background-color: Teal; 
+            color: Ivory; 
+            padding: 15px;  
+            font-size: 16pt; 
+            text-align: center;
+        }
+
+        footer {
+            background-color: Teal; 
+            color: Ivory; 
+            padding: 12px; 
+            font-size: 12pt; 
+            text-align: left;
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            left: 0;
+        }
+
+        a {
+            color: green;
+            text-decoration: none;
+            transition: 1s 2s;
+        }
+
+        a:link {
+            color: RosyBrown;
+        }
+
+        a:visited {
+            color: Indigo;
+        }
+
+        a:hover {
+            background-color: LemonChiffon;
+            color: Red;
+            text-shadow: -1px 10px 10px #C0C0C0;
+            text-decoration: underline;
+            transition: 0.3s;
+        }
+
+        a:active {
+            color: black;
+            opacity: 0.3;
+        }
+
+        div.menu {
+            border: 7px solid #00880080;
+            border-radius: 5px;
+            width: 300px;
+            margin: 0 auto;
+        }
+
+        div.menu:hover {
+            border: 9px solid #008B8B80;
+            background-color: #ffffff30;
+            box-shadow: 0 0 20px #00000030;
+        }
+
+        h1 {
+            text-align: center;
+            padding: 20px;
+            font-family: 'Lora';
+            color: #263544;
+            margin-bottom: 35px;
+            border-bottom: 2px solid #e9ecef; 
+            padding-bottom: 25px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+            background-color: AliceBlue;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .book-card {
+            border: 1px solid #e9ecef;
+            padding: 30px;
+            border-radius: 8px;
+            background-color: #fff;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .book-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .book-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #343a40;
+            display: block;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        .book-author {
+            font-size: 16px;
+            color: #5f2828;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .book-genre {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .book-pages {
+            font-size: 14px;
+            color: #98999b;
+            margin-bottom: 8px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Библиотека классической литературы</h1>
+        
+        <div class="books-grid">
+            {% for book in books %}
+            <div class="book-card">
+                <div class="book-title">{{ book.title }}</div>
+                <div class="book-author">🙍‍♂️ {{ book.author }}</div>
+                <div class="book-genre">{{ book.genre }}</div>
+                <div class="book-pages">📖 {{ book.pages }} страниц</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
