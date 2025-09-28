@@ -679,3 +679,120 @@ books = [
 @app.route('/lab2/books')
 def show_books():
     return render_template('books.html', books=books)
+
+cars = [
+    {
+        'name': 'Toyota Camry',
+        'image': 'toyota_camry.jpeg',
+        'description': 'Надёжный седан бизнес-класса с комфортным салоном и экономичным двигателем.'
+    },
+    {
+        'name': 'BMW 5 Series',
+        'image': 'bmw_5.jpg',
+        'description': 'Немецкий премиум-седан с отличной динамикой и передовыми технологиями.'
+    },
+    {
+        'name': 'Mercedes-Benz E-Class',
+        'image': 'mercedes_e.jpg',
+        'description': 'Роскошный бизнес-седан с элегантным дизайном и высоким уровнем комфорта.'
+    },
+    {
+        'name': 'Audi A6',
+        'image': 'audi_a6.jpg',
+        'description': 'Стильный премиум-седан с полным приводом Quattro и современной электроникой.'
+    },
+    {
+        'name': 'Honda Civic',
+        'image': 'honda_civic.jpg',
+        'description': 'Популярный компактный седан с надёжной конструкцией и спортивным характером.'
+    },
+    {
+        'name': 'Ford Mustang',
+        'image': 'ford_mustang.jpg',
+        'description': 'Легендарный американский маслкар с мощным двигателем V8 и агрессивным дизайном.'
+    },
+    {
+        'name': 'Chevrolet Camaro',
+        'image': 'chevrolet_camaro.jpeg',
+        'description': 'Спортивный купе с ярким дизайном и выдающимися динамическими характеристиками.'
+    },
+    {
+        'name': 'Volkswagen Golf',
+        'image': 'vw_golf.jpg',
+        'description': 'Культовый хетчбек, сочетающий практичность, комфорт и отличную управляемость.'
+    },
+    {
+        'name': 'Hyundai Tucson',
+        'image': 'hyundai_tucson.jpg',
+        'description': 'Современный кроссовер с смелым дизайном и богатым оснащением по доступной цене.'
+    },
+    {
+        'name': 'Kia Sportage',
+        'image': 'kia_sportage.jpeg',
+        'description': 'Стильный компактный кроссовер с просторным салоном и длинной гарантией.'
+    },
+    {
+        'name': 'Nissan Qashqai',
+        'image': 'nissan_qashqai.jpg',
+        'description': 'Популярный городской кроссовер, создавший новый сегмент компактных SUV.'
+    },
+    {
+        'name': 'Mazda CX-5',
+        'image': 'mazda_cx5.jpg',
+        'description': 'Элегантный кроссовер с прекрасной управляемостью и качественной отделкой.'
+    },
+    {
+        'name': 'Lexus RX',
+        'image': 'lexus_rx.jpg',
+        'description': 'Роскошный премиум-кроссовер с бесшумным ходом и высочайшим качеством сборки.'
+    },
+    {
+        'name': 'Porsche 911',
+        'image': 'porsche_911.jpg',
+        'description': 'Легендарный спортивный автомобиль с задним расположением двигателя и уникальным дизайном.'
+    },
+    {
+        'name': 'Jeep Wrangler',
+        'image': 'jeep_wrangler.jpeg',
+        'description': 'Внедорожник-легенда с рамной конструкцией и съёмными дверями для настоящих приключений.'
+    },
+    {
+        'name': 'Land Rover Defender',
+        'image': 'land_rover_defender.jpg',
+        'description': 'Современная интерпретация классического внедорожника с флагманскими внедорожными качествами.'
+    },
+    {
+        'name': 'Tesla Model 3',
+        'image': 'tesla_model3.jpg',
+        'description': 'Электрический седан с минималистичным дизайном и передовыми технологиями автопилота.'
+    },
+    {
+        'name': 'Volvo XC90',
+        'image': 'volvo_xc90.jpg',
+        'description': 'Скандинавский флагманский SUV с emphasis на безопасности и экологичности.'
+    },
+    {
+        'name': 'Subaru Outback',
+        'image': 'subaru_outback.jpg',
+        'description': 'Универсал повышенной проходимости с полным приводом Symmetrical AWD и надёжной конструкцией.'
+    },
+    {
+        'name': 'Renault Duster',
+        'image': 'renault_duster.jpg',
+        'description': 'Доступный компактный внедорожник с хорошей геометрией проходимости и практичным салоном.'
+    },
+    {
+        'name': 'Lada Vesta',
+        'image': 'lada_vesta.jpg',
+        'description': 'Российский седан с современным дизайном, предлагающий отличное соотношение цены и качества.'
+    },
+    {
+        'name': 'Skoda Octavia',
+        'image': 'skoda_octavia.jpg',
+        'description': 'Практичный лифтбек с огромным багажником и немецким качеством по доступной цене.'
+    }
+]
+
+@app.route('/lab2/cars')
+def show_cars():
+    return render_template('cars.html', cars=cars)
