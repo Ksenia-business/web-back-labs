@@ -568,3 +568,35 @@ def filters():
     phrase = "О <b>сколько</b> <u>нам</u> <i>открытий</i> чудных..."
     return render_template('filter.html', phrase = phrase)
 
+@app.route('/lab2/calc/3/4')
+def calculate_operations():
+    a = 3
+    b = 4
+    
+    return f'''
+    <h1>Математические операции с числами {a} и {b}:</h1>
+    {a} + {b} = {a + b}<br>
+    {a} - {b} = {a - b}<br>
+    {a} * {b} = {a * b}<br>
+    {a} / {b} = {a / b}<br>
+    {a}<sup>{b}</sup> = {a ** b}<br>
+    '''
+
+@app.route('/lab2/calc/')
+def default_calc():
+    return redirect('/lab2/calc/1/1')
+
+@app.route('/lab2/calc/<int:a>/<int:b>')
+def calculate_operations_any(a, b):
+    return f'''
+    <h1>Математические операции с числами {a} и {b}:</h1>
+    {a} + {b} = {a + b}<br>
+    {a} - {b} = {a - b}<br>
+    {a} * {b} = {a * b}<br>
+    {a} / {b} = {a / b}<br>
+    {a}<sup>{b}</sup> = {a ** b}<br>
+    '''
+
+@app.route('/lab2/calc/<int:a>')
+def calc_with_one_default(a):
+    return redirect(f'/lab2/calc/{a}/1')
