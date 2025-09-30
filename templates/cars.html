@@ -1,164 +1,159 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Каталог автомобилей</title>
-    <style>
-        body {
-            background-color: Linen;
-            color: Indigo;
-            font-family: Arial;
-            margin: 0px;
-        }
+{% extends "base.html" %}
 
-        main {
-            background-color: AliceBlue;
-            color: Indigo;
-            font-family: Arial;
-            margin: 10px 20px 42px;
-            padding: 10px;
-        }
+{% block lab %}Лабораторная работа 2{% endblock %}
 
-        header {
-            background-color: Teal; 
-            color: Ivory; 
-            padding: 15px;  
-            font-size: 16pt; 
-            text-align: center;
-        }
+{% block main %}
+<style>
+    body {
+        background-color: Linen;
+        color: Indigo;
+        font-family: Arial;
+        margin: 0px;
+    }
 
-        footer {
-            background-color: Teal; 
-            color: Ivory; 
-            padding: 12px; 
-            font-size: 12pt; 
-            text-align: left;
-            position: fixed;
-            bottom: 0;
-            right: 0;
-            left: 0;
-        }
+    main {
+        background-color: AliceBlue;
+        color: Indigo;
+        font-family: Arial;
+        margin: 10px 20px 42px;
+        padding: 10px;
+    }
 
-        h1 {
-            text-align: center;
-            padding: 20px;
-            font-family: 'Arial';
-            color: #edf6ff;
-            margin-bottom: 35px;
-            border-bottom: 3px solid Teal;
-            padding-bottom: 25px;
-            background: linear-gradient(45deg, Teal, #2c3e50);
-            font-size: 2.5em;
-        }
+    header {
+        background-color: Teal; 
+        color: Ivory; 
+        padding: 15px;  
+        font-size: 16pt; 
+        text-align: center;
+    }
 
-        .cars-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
-            margin-bottom: 40px;
-            padding: 0;
-        }
+    footer {
+        background-color: Teal; 
+        color: Ivory; 
+        padding: 12px; 
+        font-size: 12pt; 
+        text-align: left;
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        left: 0;
+    }
 
-        .car-card {
-            border: 2px solid Teal;
-            padding: 0;
-            border-radius: 12px;
-            background: linear-gradient(145deg, #ffffff, #f0f8ff);
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 128, 128, 0.1);
-            overflow: hidden;
-            position: relative;
-        }
+    h1 {
+        text-align: center;
+        padding: 20px;
+        font-family: 'Arial';
+        color: #edf6ff;
+        margin-bottom: 35px;
+        border-bottom: 3px solid Teal;
+        padding-bottom: 25px;
+        background: linear-gradient(45deg, Teal, #2c3e50);
+        font-size: 2.5em;
+    }
 
-        .car-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 25px rgba(0, 128, 128, 0.2);
-            border-color: #008080;
-        }
+    .cars-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+        margin-bottom: 40px;
+        padding: 0;
+    }
 
-        .car-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, Teal, #20B2AA);
-        }
+    .car-card {
+        border: 2px solid Teal;
+        padding: 0;
+        border-radius: 12px;
+        background: linear-gradient(145deg, #ffffff, #f0f8ff);
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 128, 128, 0.1);
+        overflow: hidden;
+        position: relative;
+    }
 
-        .car-image-container {
-            padding: 15px 15px 0 15px;
-        }
+    .car-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 25px rgba(0, 128, 128, 0.2);
+        border-color: #008080;
+    }
 
-        .car-image {
-            width: 100%;
-            height: 350px;
-            object-fit: cover;
-            border-radius: 8px;
-            transition: transform 0.3s ease;
-        }
+    .car-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, Teal, #20B2AA);
+    }
 
-        .car-card:hover .car-image {
-            transform: scale(1.05);
-        }
+    .car-image-container {
+        padding: 15px 15px 0 15px;
+    }
 
-        .car-info {
-            padding: 20px;
-            text-align: left;
-        }
+    .car-image {
+        width: 100%;
+        height: 350px;
+        object-fit: cover;
+        border-radius: 8px;
+        transition: transform 0.3s ease;
+    }
 
-        .car-name {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid AliceBlue;
-            position: relative;
-        }
+    .car-card:hover .car-image {
+        transform: scale(1.05);
+    }
 
-        .car-name::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 50px;
-            height: 2px;
-            background: Teal;
-            transition: width 0.3s ease;
-        }
+    .car-info {
+        padding: 20px;
+        text-align: left;
+    }
 
-        .car-card:hover .car-name::after {
-            width: 100px;
-        }
+    .car-name {
+        font-size: 1.3em;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid AliceBlue;
+        position: relative;
+    }
 
-        .car-description {
-            font-size: 0.95em;
-            color: #5d6d7e;
-            line-height: 1.5;
-            margin: 0;
-        }
-    </style>
-</head>
-<body>
-    <main>
-        <h1>Каталог автомобилей</h1>
-        <div class="cars-grid">
-            {% for car in cars %}
-        <div class="car-card">
-            <div class="car-image-container">
-                <img src="{{ url_for('static', filename='cars/' + car.image) }}" 
-                    alt="{{ car.name }}" 
-                    class="car-image">
-            </div>
-            <div class="car-info">
-                <div class="car-name">{{ car.name }}</div>
-                <div class="car-description">{{ car.description }}</div>
-            </div>
+    .car-name::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 50px;
+        height: 2px;
+        background: Teal;
+        transition: width 0.3s ease;
+    }
+
+    .car-card:hover .car-name::after {
+        width: 100px;
+    }
+
+    .car-description {
+        font-size: 0.95em;
+        color: #5d6d7e;
+        line-height: 1.5;
+        margin: 0;
+    }
+</style>
+
+<h1>Каталог автомобилей</h1>
+<div class="cars-grid">
+    {% for car in cars %}
+    <div class="car-card">
+        <div class="car-image-container">
+            <img src="{{ url_for('static', filename='cars/' + car.image) }}" 
+                alt="{{ car.name }}" 
+                class="car-image">
         </div>
-        {% endfor %}
+        <div class="car-info">
+            <div class="car-name">{{ car.name }}</div>
+            <div class="car-description">{{ car.description }}</div>
         </div>
-    </main>
-</body>
-</html>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

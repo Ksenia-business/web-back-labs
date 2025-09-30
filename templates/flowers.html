@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 2{% endblock %}
+
+{% block main %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<div class="container">
+    <h1>Все цветы</h1>
+    <p class="text-center">Общее количество цветов: <span class="count-badge">{{ total_flowers }}</span></p>
+    
+    <div class="flower-info">
+        <p><strong>Список цветов:</strong></p>
+        <p>{{ flower_list | join(", ") }}</p>
+    </div>
+    
+    <div class="text-center">
+        <a href="/lab2/add_flower/" class="btn btn-success">Добавить цветок</a>
+        <a href="/lab2/clear_flowers/" class="btn btn-danger">Очистить список</a>
+    </div>
+</div>
+{% endblock %}

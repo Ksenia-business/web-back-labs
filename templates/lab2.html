@@ -6,10 +6,17 @@
 {# основной контент: #}
 {% block main %}
     <h1>Шаблоны</h1>
-    <div>Тема лабораторной - шаблоны. Список сделанных страниц</div>
+    <div>Тема лабораторной - шаблоны. Список сделанных страниц:</div>
     <ol>
-        <li>
-            <a href="/lab2/example">example</a>
-        </li>
+        <li><a href="/lab2/example">example</a></li>         
+        <li><a href="/lab2/a">Текст без слэша</a></li>
+        <li><a href="/lab2/a/">Текст со слэшем</a></li>
+        <li><a href="/lab2/filters">Фильтры</a></li>
+        <li><a href="/lab2/flowers/">Цветы</a></li>
+        <li><a href="/lab2/calc/">Калькулятор (по умолчанию 1/1)</a></li>
+        <li><a href="/lab2/calc/3/4">Калькулятор с числами 3 и 4</a></li>
+        <li><a href="/lab2/calc/5">Калькулятор с числом 5 (второе=1)</a></li>
+        <li><a href="/lab2/books">Книги</a></li>
+        <li><a href="/lab2/cars">Автомобили</a></li>
     </ol>
 {% endblock %}

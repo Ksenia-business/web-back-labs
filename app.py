@@ -19,6 +19,7 @@ def index():
         <nav>
             <ul>
                 <li><a href="/lab1">Первая лабораторная</a></li>
+                <li><a href="/lab2">Вторая лабораторная</a></li>
             </ul>
         </nav>
         
@@ -415,133 +416,33 @@ def flowers(flower_id):
     if flower_id >= len(flower_list):
         abort(404)
     else:
-        return f'''
-<!doctype html>
-<html>
-    <head>
-        <title>Информация о цветке</title>
-        <link rel="stylesheet" href="/static/style.css">
-    </head>
-    <body>
-        <div class="container">
-            <h1><span class="emoji">🌸</span>Информация о цветке</h1>
-            <div class="flower-info">
-                <p><strong>Цветок:</strong> {flower_list[flower_id]}</p>
-                <p><strong>ID цветка:</strong> {flower_id}</p>
-                <p><strong>Всего цветов в базе:</strong> <span class="count-badge">{len(flower_list)}</span></p>
-            </div>
-            <div class="text-center">
-                <a href="/lab2/flowers/" class="btn">📋 Посмотреть все цветы</a>
-            </div>
-        </div>
-    </body>
-</html>
-'''
+        return render_template('flower_detail.html',
+                             flower_name=flower_list[flower_id],
+                             flower_id=flower_id,
+                             total_flowers=len(flower_list))
 
 @app.route('/lab2/flowers/')
 def all_flowers():
-    return f'''
-<!doctype html>
-<html>
-    <head>
-        <title>Все цветы</title>
-        <link rel="stylesheet" href="/static/style.css">
-    </head>
-    <body>
-        <div class="container">
-            <h1>Все цветы</h1>
-            <p class="text-center">Общее количество цветов: <span class="count-badge">{len(flower_list)}</span></p>
-            
-            <div class="flower-info">
-                <p><strong>Список цветов:</strong></p>
-                <p>{", ".join(flower_list)}</p>
-            </div>
-            
-            <div class="text-center">
-                <a href="/lab2/add_flower/" class="btn btn-success">Добавить цветок</a>
-                <a href="/lab2/clear_flowers/" class="btn btn-danger">Очистить список</a>
-            </div>
-        </div>
-    </body>
-</html>
-'''
+    return render_template('flowers.html',
+                         flower_list=flower_list,
+                         total_flowers=len(flower_list))
 
 @app.route('/lab2/clear_flowers/')
 def clear_flowers():
     flower_list.clear()
-    return '''
-<!doctype html>
-<html>
-    <head>
-        <title>Список очищен</title>
-        <link rel="stylesheet" href="/static/style.css">
-    </head>
-    <body>
-        <div class="container">
-            <h1><span class="emoji">🗑️</span>Список цветов очищен</h1>
-            <div class="warning">
-                <p>Все цветы были удалены из списка.</p>
-                <p>Текущее количество цветов: <span class="count-badge">0</span></p>
-            </div>
-            <div class="text-center">
-                <a href="/lab2/flowers/" class="btn">📋 Все цветы</a>
-                <a href="/lab2/add_flower/" class="btn btn-success">Добавить цветок</a>
-            </div>
-        </div>
-    </body>
-</html>
-'''
+    return render_template('clear_flowers.html')
 
 @app.route('/lab2/add_flower/<name>')
 def add_flower(name):
     flower_list.append(name)
-    return f'''
-<!doctype html>
-<html>
-    <head>
-        <title>Цветок добавлен</title>
-        <link rel="stylesheet" href="/static/style.css">
-    </head>
-    <body>
-        <div class="container">
-            <h1><span class="emoji">✅</span>Добавлен новый цветок</h1>
-            <div class="success">
-                <p><strong>Название нового цветка:</strong> {name}</p>
-                <p><strong>Всего цветов:</strong> <span class="count-badge">{len(flower_list)}</span></p>
-                <p><strong>Полный список:</strong> {flower_list}</p>
-            </div>
-            <div class="text-center">
-                <a href="/lab2/flowers/" class="btn">📋 Все цветы</a>
-                <a href="/lab2/add_flower/" class="btn btn-success">Добавить еще</a>
-            </div>
-        </div>
-    </body>
-</html>
-'''
+    return render_template('add_flower.html',
+                         flower_name=name,
+                         flower_list=flower_list,
+                         total_flowers=len(flower_list))
 
 @app.route('/lab2/add_flower/')
 def add_flower_empty():
-    return '''
-<!doctype html>
-<html>
-    <head>
-        <title>Ошибка</title>
-        <link rel="stylesheet" href="/static/style.css">
-    </head>
-    <body>
-        <div class="container">
-            <div class="error">
-                <h1><span class="emoji">❌</span>Ошибка</h1>
-                <p>Вы не задали имя цветка</p>
-                <p>Используйте URL: /lab2/add_flower/название_цветка</p>
-            </div>
-            <div class="text-center">
-                <a href="/lab2/flowers/" class="btn">📋 Все цветы</a>
-            </div>
-        </div>
-    </body>
-</html>
-''', 400
+    return render_template('add_flower_error.html'), 400
 
 @app.route('/lab2/example')
 def example():
@@ -572,15 +473,7 @@ def filters():
 def calculate_operations():
     a = 3
     b = 4
-    
-    return f'''
-    <h1>Математические операции с числами {a} и {b}:</h1>
-    {a} + {b} = {a + b}<br>
-    {a} - {b} = {a - b}<br>
-    {a} * {b} = {a * b}<br>
-    {a} / {b} = {a / b}<br>
-    {a}<sup>{b}</sup> = {a ** b}<br>
-    '''
+    return render_template('calc.html', a=a, b=b)
 
 @app.route('/lab2/calc/')
 def default_calc():
@@ -588,14 +481,7 @@ def default_calc():
 
 @app.route('/lab2/calc/<int:a>/<int:b>')
 def calculate_operations_any(a, b):
-    return f'''
-    <h1>Математические операции с числами {a} и {b}:</h1>
-    {a} + {b} = {a + b}<br>
-    {a} - {b} = {a - b}<br>
-    {a} * {b} = {a * b}<br>
-    {a} / {b} = {a / b}<br>
-    {a}<sup>{b}</sup> = {a ** b}<br>
-    '''
+    return render_template('calc.html', a=a, b=b)
 
 @app.route('/lab2/calc/<int:a>')
 def calc_with_one_default(a):

@@ -5,6 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ксения Чепурнова. {% block lab %}{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    <style>
+        .nav-buttons {
+            text-align: center; 
+            margin-bottom: 25px;
+            padding: 15px;
+        }
+        
+        .nav-button {
+            color: #2c3e50; 
+            text-decoration: none; 
+            font-weight: 600; 
+            font-size: 16px;
+            padding: 12px 24px;
+            border: 2px solid #87CEEB;
+            border-radius: 8px;
+            margin: 0 8px;
+            background-color: white;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .nav-button:hover {
+            background-color: #87CEEB;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(135, 206, 235, 0.3);
+        }
+        
+        .nav-button:active {
+            transform: translateY(0);
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -12,6 +44,11 @@
     </header>
 
     <main>
+        <div class="nav-buttons">
+            <a href="/" class="nav-button">На главную</a>
+            <a href="/lab2" class="nav-button">К списку заданий</a>
+        </div>
+        
         {% block main %}{% endblock %}
     </main>
 
