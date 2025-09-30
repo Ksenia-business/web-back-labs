@@ -409,15 +409,23 @@ def a():
 def a2():
     return 'со слэшем'
 
-flower_list = ['роза', 'тюльпан', 'незабудка', 'ромашка']
+# Список цветов теперь с ценами
+flower_list = [
+    {'name': 'роза', 'price': 150},
+    {'name': 'тюльпан', 'price': 80},
+    {'name': 'незабудка', 'price': 50},
+    {'name': 'ромашка', 'price': 40}
+]
 
 @app.route('/lab2/flowers/<int:flower_id>')
 def flowers(flower_id):
     if flower_id >= len(flower_list):
         abort(404)
     else:
+        flower = flower_list[flower_id]
         return render_template('flower_detail.html',
-                             flower_name=flower_list[flower_id],
+                             flower_name=flower['name'],
+                             flower_price=flower['price'],
                              flower_id=flower_id,
                              total_flowers=len(flower_list))
 
@@ -434,15 +442,34 @@ def clear_flowers():
 
 @app.route('/lab2/add_flower/<name>')
 def add_flower(name):
-    flower_list.append(name)
+    flower_list.append({'name': name, 'price': 100})
     return render_template('add_flower.html',
                          flower_name=name,
                          flower_list=flower_list,
                          total_flowers=len(flower_list))
 
+@app.route('/lab2/delete_flower/<int:flower_id>')
+def delete_flower(flower_id):
+    if flower_id >= len(flower_list):
+        abort(404)
+    else:
+        deleted_flower = flower_list.pop(flower_id)
+        return redirect('/lab2/flowers/')
+
 @app.route('/lab2/add_flower/')
 def add_flower_empty():
     return render_template('add_flower_error.html'), 400
+
+@app.route('/lab2/add_flower_form/', methods=['POST'])
+def add_flower_form():
+    name = request.form.get('name')
+    price = int(request.form.get('price', 100))
+    
+    if name:
+        flower_list.append({'name': name, 'price': price})
+        return redirect('/lab2/flowers/')
+    else:
+        return render_template('add_flower_error.html'), 400
 
 @app.route('/lab2/example')
 def example():

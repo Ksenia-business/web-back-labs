@@ -8,11 +8,13 @@
     <h1><span class="emoji">🌸</span>Информация о цветке</h1>
     <div class="flower-info">
         <p><strong>Цветок:</strong> {{ flower_name }}</p>
+        <p><strong>Цена:</strong> {{ flower_price }} ₽</p>
         <p><strong>ID цветка:</strong> {{ flower_id }}</p>
         <p><strong>Всего цветов в базе:</strong> <span class="count-badge">{{ total_flowers }}</span></p>
     </div>
     <div class="text-center">
-        <a href="/lab2/flowers/" class="btn">📋 Посмотреть все цветы</a>
+        <a href="/lab2/flowers/" class="btn">Посмотреть все цветы</a>
+        <a href="/lab2/delete_flower/{{ flower_id }}" class="btn btn-danger">🗑️ Удалить этот цветок</a>
     </div>
 </div>
 {% endblock %}
