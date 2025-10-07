@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 2{% endblock %}
+
+{% block main %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<div class="container">
+    <h1><span class="emoji">🗑️</span>Список цветов очищен</h1>
+    <div class="warning">
+        <p>Все цветы были удалены из списка.</p>
+        <p>Текущее количество цветов: <span class="count-badge">0</span></p>
+    </div>
+    <div class="text-center">
+        <a href="/lab2/flowers/" class="btn">📋 Все цветы</a>
+        <a href="/lab2/add_flower/" class="btn btn-success">Добавить цветок</a>
+    </div>
+</div>
+{% endblock %}
