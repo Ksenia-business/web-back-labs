@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 3{% endblock %}
+
+{% block main %}
+<style>
+    .outer-container {
+        width: 800px;
+        margin: 0 auto;
+        background: linear-gradient(135deg, #fefaf6 0%, #f8f4f0 100%);
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 15px 35px rgba(139, 69, 19, 0.1);
+        border: 1px solid #e8d5c4;
+    }
+    
+    .main-container {
+        max-width: 500px;
+        margin: 0 auto;
+        text-align: center;
+    }
+    
+    h1 {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 2.8em;
+        font-weight: 700;
+        font-family: 'Cormorant Garamond', serif;
+        color: #8b4513;
+        text-shadow: 2px 2px 4px rgba(139, 69, 19, 0.2);
+        letter-spacing: 1px;
+    }
+    
+    .success-message {
+        font-size: 1.4em;
+        color: #654321;
+        margin-bottom: 30px;
+        font-family: 'Cormorant Garamond', serif;
+        font-weight: 500;
+        line-height: 1.6;
+    }
+    
+    .price-highlight {
+        font-size: 1.6em;
+        font-weight: 700;
+        color: #8b4513;
+        background: linear-gradient(135deg, #fffaf0 0%, #fdf5e6 100%);
+        padding: 10px 20px;
+        border-radius: 10px;
+        border: 1px solid #e8d5c4;
+        display: inline-block;
+        margin: 10px 0;
+        box-shadow: 0 3px 10px rgba(139, 69, 19, 0.1);
+    }
+    
+    .back-button {
+        display: inline-block;
+        padding: 15px 30px;
+        background: linear-gradient(135deg, #d2b48c, #8b4513);
+        color: #fffaf0;
+        text-decoration: none;
+        border-radius: 12px;
+        font-size: 1.2em;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(139, 69, 19, 0.3);
+        font-family: 'Cormorant Garamond', serif;
+        letter-spacing: 1px;
+        margin-top: 20px;
+    }
+    
+    .back-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(139, 69, 19, 0.4);
+        background: linear-gradient(135deg, #8b4513, #d2b48c);
+        color: #fffaf0;
+        text-decoration: none;
+    }
+</style>
+
+<div class="outer-container">
+    <div class="main-container">
+        <h1>Спасибо!</h1>
+        
+        <div class="success-message">
+            Ваш заказ оплачен на сумму<br>
+            <span class="price-highlight">{{ price }} рублей</span><br>
+            ожидайте доставку
+        </div>
+        
+        <div>
+            <a href="/lab3/order" class="back-button">Вернуться к заказу</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
