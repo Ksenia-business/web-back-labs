@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 3{% endblock %}
+
+{% block main %}
+    <h1>Cookies</h1>
+    <form>
+        <div>
+            <label for="color">Выберите цвет текста:</label>
+            <input type="color" id="color" name="color" value="{{ color or '' }}">
+        </div>
+        
+        <div>
+            <label for="bgcolor">Цвет фона:</label>
+            <input type="color" id="bgcolor" name="bgcolor" value="{{ bgcolor or '' }}">
+        </div>
+        
+        <div>
+            <label for="fontsize">Размер шрифта:</label>
+            <select id="fontsize" name="fontsize">
+                <option value="14px" {{ 'selected' if fontsize == '14px' else '' }}>Маленький</option>
+                <option value="16px" {{ 'selected' if fontsize == '16px' else '' }}>Средний</option>
+                <option value="18px" {{ 'selected' if fontsize == '18px' else '' }}>Большой</option>
+                <option value="20px" {{ 'selected' if fontsize == '20px' else '' }}>Очень большой</option>
+            </select>
+        </div>
+        
+        <div>
+            <label for="fontstyle">Начертание шрифта:</label>
+            <select id="fontstyle" name="fontstyle">
+                <option value="normal" {{ 'selected' if fontstyle == 'normal' else '' }}>Обычное</option>
+                <option value="bold" {{ 'selected' if fontstyle == 'bold' else '' }}>Жирное</option>
+                <option value="lighter" {{ 'selected' if fontstyle == 'lighter' else '' }}>Тонкое</option>
+            </select>
+        </div>
+        
+        <div>
+            <button type="submit">Применить стили</button>
+            <a href="/lab3/reset_settings" style="margin-left: 10px;">Сбросить настройки</a>
+        </div>
+    </form>
+{% endblock %}

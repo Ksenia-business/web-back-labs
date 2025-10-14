@@ -63,7 +63,51 @@ def pay():
 
     return render_template('lab3/pay.html', price=price)
 
+
 @lab3.route('/lab3/success')
 def success():
     price = request.args.get('price')
     return render_template('lab3/success.html', price=price)
+
+
+@lab3.route('/lab3/settings')
+def settings():
+    color = request.args.get('color')
+    bgcolor = request.args.get('bgcolor')
+    fontsize = request.args.get('fontsize')
+    fontstyle = request.args.get('fontstyle')
+
+    if color is not None or bgcolor is not None or fontsize is not None or fontstyle is not None:
+        resp = make_response(redirect('/lab3/settings'))
+        if color is not None:
+            resp.set_cookie('color', color)
+        if bgcolor is not None:
+            resp.set_cookie('bgcolor', bgcolor)
+        if fontsize is not None:
+            resp.set_cookie('fontsize', fontsize)
+        if fontstyle is not None:
+            resp.set_cookie('fontstyle', fontstyle)
+        return resp
+    
+    color = request.cookies.get('color')
+    bgcolor = request.cookies.get('bgcolor')
+    fontsize = request.cookies.get('fontsize')
+    fontstyle = request.cookies.get('fontstyle')
+
+    resp = make_response(render_template(
+        'lab3/settings.html',
+        color=color,
+        bgcolor=bgcolor,
+        fontsize=fontsize,
+        fontstyle=fontstyle
+    ))
+    return resp
+
+@lab3.route('/lab3/reset_settings')
+def reset_settings():
+    resp = make_response(redirect('/lab3/settings'))
+    resp.set_cookie('color', '', expires=0)
+    resp.set_cookie('bgcolor', '', expires=0)
+    resp.set_cookie('fontsize', '', expires=0)
+    resp.set_cookie('fontstyle', '', expires=0)
+    return resp
