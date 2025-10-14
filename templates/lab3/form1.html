@@ -1,59 +1,114 @@
 {% extends "base.html" %}
 
-{# номер лабораторной работы: #}
 {% block lab %}Лабораторная работа 3{% endblock %}
 
-{# основной контент: #}
 {% block main %}
-<style>
-    .error {
-        color: #ff0000;
-        font-size: 14px;
-        font-weight: bold;
-        margin-top: 5px;
-        display: block;
-    }
-</style>
+    <style>
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            font-size: 16px;
+            max-width: 300px;
+        }
+        input:focus, select:focus {
+            border-color: #e74c3c;
+            outline: none;
+        }
+        button {
+            background: #e74c3c;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #c0392b;
+        }
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: block;
+        }
+        .result {
+            background: #d5f4e6;
+            padding: 25px;
+            border-radius: 8px;
+            border-left: 5px solid #27ae60;
+            text-align: center;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .result a {
+            color: #e74c3c;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .result a:hover {
+            text-decoration: underline;
+        }
+        .form-container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+    </style>
 
-    {% if user %}
-
-    <h1>Привет, {{ user }}!</h1>
-    <h2>Добро пожаловать на наш сайт!</h2>
-
-    <div>Ваш возраст: {{ age }}</div>
-    <div>Ваш пол: {{ 'мужской' if sex == 'male' else 'женский' }}</div>
-    <div>
-        <a href="/lab3/form1">Заново</a>
-    </div>
-
+    {% if user and age %}
+        <div class="result">
+            <h2>Привет, {{ user }}!</h2>
+            <p style="font-size: 16px; margin: 8px 0;"><strong>Возраст:</strong> {{ age }}</p>
+            <p style="font-size: 16px; margin: 8px 0;"><strong>Пол:</strong> {{ 'мужской' if sex == 'male' else 'женский' }}</p>
+            <p style="margin-top: 20px;">
+                <a href="/lab3/form1">Заполнить снова</a>
+            </p>
+        </div>
     {% else %}
+        <div class="form-container">
+            <h2>Форма пользователя</h2>
+            <form>
+                <div class="form-group">
+                    <label>Ваше имя:</label>
+                    <input type="text" name="user" value="{{ user or '' }}" placeholder="Введите ваше имя">
+                    <span class="error">{{ errors.user }}</span>
+                </div>
 
-    <h1>Пользователь</h1>
-    <form>
-        <label>Ваше имя:</label>
-        <div>
-            <input type="text" placeholder="Как вас зовут?" name="user" value="{{ user or '' }}">
-            <span class="error">{{ errors.user }}</span>
+                <div class="form-group">
+                    <label>Ваш возраст:</label>
+                    <input type="number" name="age" value="{{ age or '' }}" placeholder="Введите ваш возраст">
+                    <span class="error">{{ errors.age }}</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Ваш пол:</label>
+                    <select name="sex">
+                        <option value="male" {{ 'selected' if sex == 'male' }}>Мужчина</option>
+                        <option value="female" {{ 'selected' if sex == 'female' }}>Женщина</option>
+                    </select>
+                </div>
+
+                <div style="text-align: center;">
+                    <button type="submit">Отправить</button>
+                </div>
+            </form>
         </div>
-
-        <label>Ваш возраст:</label>
-        <div>
-            <input type="number" name="age" value="{{ age or '' }}">
-            <span class="error">{{ errors.user }}</span>
-        </div>
-
-        <label>Ваш пол:</label>
-        <div>
-            <select name="sex">
-                <option value="male" {{ sex == 'male' and 'selected' }}>мужчина</option>
-                <option value="female" {{ sex == 'female' and 'selected' }}>женщина</option>
-            </select>
-        </div>
-
-        <div>
-            <button type="submit">Отправить</button>
-        </div>
-    </form>
-
     {% endif %}
 {% endblock %}
