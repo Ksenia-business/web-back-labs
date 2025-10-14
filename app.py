@@ -57,8 +57,8 @@ def not_found(err):
     }
     access_log.append(log_entry)
     
-    css_path = url_for("static", filename="error.css")
-    image_path = url_for("static", filename="404.jpg")
+    css_path = url_for("static", filename="lab1/error.css")
+    image_path = url_for("static", filename="lab1/404.jpg")
     
     html_template = '''
 <!doctype html>
@@ -226,8 +226,8 @@ def teapot():
 
 @app.errorhandler(500)
 def internal_server_error(err):
-    css_path = url_for("static", filename="error500.css")
-    image_path = url_for("static", filename="error500.png")
+    css_path = url_for("static", filename="lab1/error500.css")
+    image_path = url_for("static", filename="lab1/error500.png")
 
     
     return '''
