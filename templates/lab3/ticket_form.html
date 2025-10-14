@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 3{% endblock %}
+
+{% block main %}
+<style>
+    .ticket-container {
+        max-width: 500px;
+        margin: 0 auto;
+        background: white;
+        padding: 35px;
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e8ecef;
+    }
+
+    .ticket-title {
+        text-align: center;
+        color: #2c3e50;
+        margin-bottom: 35px;
+        font-size: 26px;
+        font-weight: 600;
+        letter-spacing: -0.5px;
+    }
+
+    .form-group {
+        margin-bottom: 22px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #34495e;
+        font-size: 14px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1.5px solid #dcdfe4;
+        border-radius: 8px;
+        font-size: 15px;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+        background: #fafbfc;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #3498db;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+
+    select.form-control {
+        background-position: right 12px center;
+        background-repeat: no-repeat;
+        background-size: 16px;
+        appearance: none;
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 14px;
+        padding: 12px 14px;
+        border-radius: 8px;
+        border: 1.5px solid #e8ecef;
+        transition: all 0.2s ease;
+        background: #fafbfc;
+    }
+
+    .checkbox-group:hover {
+        background: #f1f3f4;
+        border-color: #3498db;
+        transform: translateY(-1px);
+    }
+
+    .checkbox-group:has(input:checked) {
+        background: #e8f4fd;
+        border-color: #3498db;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #3498db;
+    }
+
+    .checkbox-group label {
+        margin: 0;
+        font-weight: 400;
+        color: #2c3e50;
+        cursor: pointer;
+        flex: 1;
+    }
+
+    .error {
+        color: #e74c3c;
+        font-size: 13px;
+        margin-top: 6px;
+        display: block;
+        padding: 6px 10px;
+        background: #fdeded;
+        border-radius: 6px;
+        border-left: 3px solid #e74c3c;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 14px;
+        background: #3498db;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin-top: 15px;
+        letter-spacing: 0.5px;
+    }
+
+    .submit-btn:hover {
+        background: #2980b9;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    }
+
+    .form-section {
+        margin-bottom: 28px;
+        padding-bottom: 24px;
+        border-bottom: 1.5px solid #f1f3f4;
+    }
+
+    .section-title {
+        color: #2c3e50;
+        font-size: 17px;
+        margin-bottom: 18px;
+        font-weight: 600;
+        padding-left: 12px;
+        border-left: 4px solid #3498db;
+    }
+
+    .route-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .price-tag {
+        color: #27ae60;
+        font-weight: 500;
+        font-size: 13px;
+        background: #e8f6ef;
+        padding: 4px 8px;
+        border-radius: 6px;
+    }
+</style>
+
+<div class="ticket-container">
+    <h1 class="ticket-title">Оформление железнодорожного билета</h1>
+    
+    <form>
+        <input type="hidden" name="submitted" value="1">
+        
+        <div class="form-section">
+            <div class="section-title">Данные пассажира</div>
+            
+            <div class="form-group">
+                <label>ФИО пассажира</label>
+                <input type="text" name="fio" value="{{ fio }}" class="form-control" placeholder="Иванов Иван Иванович">
+                {% if errors.fio %}<span class="error">{{ errors.fio }}</span>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label>Возраст</label>
+                <input type="number" name="age" value="{{ age }}" min="1" max="120" class="form-control" placeholder="18">
+                {% if errors.age %}<span class="error">{{ errors.age }}</span>{% endif %}
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="section-title">Параметры поездки</div>
+
+            <div class="form-group">
+                <label>Тип полки</label>
+                <select name="shelf" class="form-control">
+                    <option value="">— Выберите полку —</option>
+                    <option value="lower" {{ 'selected' if shelf == 'lower' }}>Нижняя</option>
+                    <option value="upper" {{ 'selected' if shelf == 'upper' }}>Верхняя</option>
+                    <option value="upper_side" {{ 'selected' if shelf == 'upper_side' }}>Верхняя боковая</option>
+                    <option value="lower_side" {{ 'selected' if shelf == 'lower_side' }}>Нижняя боковая</option>
+                </select>
+                {% if errors.shelf %}<span class="error">{{ errors.shelf }}</span>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label>Маршрут</label>
+                <div class="route-grid">
+                    <div>
+                        <input type="text" name="departure" value="{{ departure }}" class="form-control" placeholder="Отправление">
+                        {% if errors.departure %}<span class="error">{{ errors.departure }}</span>{% endif %}
+                    </div>
+                    <div>
+                        <input type="text" name="destination" value="{{ destination }}" class="form-control" placeholder="Назначение">
+                        {% if errors.destination %}<span class="error">{{ errors.destination }}</span>{% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Дата поездки</label>
+                <input type="date" name="date" value="{{ date }}" class="form-control">
+                {% if errors.date %}<span class="error">{{ errors.date }}</span>{% endif %}
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="section-title">Дополнительные услуги</div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" name="bedding" id="bedding" {{ 'checked' if bedding }}>
+                <label for="bedding">Комплект белья <span class="price-tag">+75 руб</span></label>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" name="baggage" id="baggage" {{ 'checked' if baggage }}>
+                <label for="baggage">Багаж <span class="price-tag">+250 руб</span></label>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" name="insurance" id="insurance" {{ 'checked' if insurance }}>
+                <label for="insurance">Страховка <span class="price-tag">+150 руб</span></label>
+            </div>
+        </div>
+
+        <button type="submit" class="submit-btn">
+            Оформить билет
+        </button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 3{% endblock %}
+
+{% block main %}
+<div style="max-width: 600px; margin: 0 auto; border: 2px solid #333; padding: 20px; background: #f9f9f9;">
+    <h1 style="text-align: center; color: #d40000;">Железнодорожный билет</h1>
+    
+    <div style="background: white; padding: 20px; border: 1px solid #ccc;">
+        <div style="margin-bottom: 15px;">
+            <strong>Пассажир:</strong> {{ fio }}
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <strong>Тип билета:</strong> {{ ticket_type }}
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <strong>Возраст:</strong> {{ age }} лет
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <strong>Маршрут:</strong> {{ departure }} → {{ destination }}
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <strong>Дата поездки:</strong> {{ date }}
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <strong>Место:</strong> 
+            {% if shelf == 'lower' %}Нижняя полка
+            {% elif shelf == 'upper' %}Верхняя полка
+            {% elif shelf == 'upper_side' %}Верхняя боковая
+            {% elif shelf == 'lower_side' %}Нижняя боковая
+            {% endif %}
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <strong>Дополнительные услуги:</strong>
+            <ul>
+                {% if bedding %}
+                <li>Бельё: +75 руб</li>
+                {% endif %}
+                {% if baggage %}
+                <li>Багаж: +250 руб</li>
+                {% endif %}
+                {% if insurance %}
+                <li>Страховка: +150 руб</li>
+                {% endif %}
+                {% if shelf in ['lower', 'lower_side'] %}
+                <li>Нижняя полка: +100 руб</li>
+                {% endif %}
+            </ul>
+        </div>
+        
+        <div style="text-align: center; margin-top: 25px; padding: 15px; background: #e8f4fd; border-radius: 5px;">
+            <h2 style="color: #d40000; margin: 0;">
+                Итого к оплате: {{ total_price }} руб
+            </h2>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="/lab3/ticket" style="color: #007bff; text-decoration: none;">Оформить новый билет</a>
+    </div>
+</div>
+{% endblock %}
