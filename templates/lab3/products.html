@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 3{% endblock %}
+
+{% block main %}
+<div class="products-page">
+    <h1 class="page-title">Поиск смартфонов</h1>
+    
+    <div class="search-section">
+        <form method="GET" class="search-form">
+            <div class="price-inputs">
+                <div class="input-group">
+                    <label for="min_price">От</label>
+                    <input type="number" id="min_price" name="min_price" 
+                           value="{{ min_price }}" 
+                           placeholder="{{ min_price_all }}"
+                           class="price-input">
+                    <span class="input-hint">мин: {{ min_price_all }} ₽</span>
+                </div>
+                
+                <div class="input-group">
+                    <label for="max_price">До</label>
+                    <input type="number" id="max_price" name="max_price" 
+                           value="{{ max_price }}" 
+                           placeholder="{{ max_price_all }}"
+                           class="price-input">
+                    <span class="input-hint">макс: {{ max_price_all }} ₽</span>
+                </div>
+            </div>
+            
+            <div class="form-buttons">
+                <button type="submit" class="btn search-btn">
+                    Найти
+                </button>
+                <button type="submit" name="reset" value="1" class="btn reset-btn">
+                    Сбросить
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="results-info">
+        {% if min_price or max_price %}
+            <div class="results-count">
+                Найдено: <strong>{{ products_count }}</strong> из {{ total_products }} товаров
+            </div>
+            <div class="price-range">
+                Диапазон цен: 
+                <span class="range-values">
+                    {% if min_price %}{{ min_price }} ₽{% else %}любая{% endif %} - 
+                    {% if max_price %}{{ max_price }} ₽{% else %}любая{% endif %}
+                </span>
+            </div>
+        {% else %}
+            <div class="results-count">
+                Все товары: <strong>{{ total_products }}</strong> позиций
+            </div>
+        {% endif %}
+    </div>
+
+    {% if products_count > 0 %}
+        <div class="products-list">
+            {% for product in products %}
+                <div class="product-item">
+                    <div class="product-header">
+                        <span class="product-brand">{{ product.brand }}</span>
+                        <span class="product-price">{{ product.price }} ₽</span>
+                    </div>
+                    <h3 class="product-name">{{ product.name }}</h3>
+                    <div class="product-specs">
+                        <span class="spec">
+                            <span class="spec-label">Цвет:</span>
+                            {{ product.color }}
+                        </span>
+                        <span class="spec">
+                            <span class="spec-label">Память:</span>
+                            {{ product.storage }}
+                        </span>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h3>Товары не найдены</h3>
+            <p>Попробуйте изменить ценовой диапазон</p>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.products-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.page-title {
+    text-align: center;
+    color: #2d3748;
+    margin-bottom: 30px;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.search-section {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 25px;
+}
+
+.price-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group label {
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 8px;
+}
+
+.price-input {
+    padding: 12px 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+
+.price-input:focus {
+    outline: none;
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.input-hint {
+    font-size: 0.85rem;
+    color: #718096;
+    margin-top: 5px;
+}
+
+.form-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.search-btn {
+    background: #4299e1;
+    color: white;
+}
+
+.search-btn:hover {
+    background: #3182ce;
+    transform: translateY(-1px);
+}
+
+.reset-btn {
+    background: #a0aec0;
+    color: white;
+}
+
+.reset-btn:hover {
+    background: #718096;
+    transform: translateY(-1px);
+}
+
+.results-info {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.results-count {
+    font-size: 1.1rem;
+    color: #4a5568;
+    margin-bottom: 8px;
+}
+
+.results-count strong {
+    color: #2d3748;
+}
+
+.price-range {
+    color: #718096;
+}
+
+.range-values {
+    color: #2d3748;
+    font-weight: 600;
+}
+
+.products-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.product-item {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 20px;
+    transition: all 0.2s ease;
+}
+
+.product-item:hover {
+    border-color: #cbd5e0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+}
+
+.product-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.product-brand {
+    background: #edf2f7;
+    color: #4a5568;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.product-price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #2b6cb0;
+}
+
+.product-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 15px;
+    line-height: 1.4;
+}
+
+.product-specs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.spec {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+}
+
+.spec-label {
+    color: #718096;
+    font-weight: 500;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+
+.empty-state h3 {
+    color: #4a5568;
+    margin-bottom: 10px;
+    font-size: 1.3rem;
+}
+
+.empty-state p {
+    color: #718096;
+}
+</style>
+{% endblock %}

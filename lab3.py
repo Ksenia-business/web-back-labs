@@ -222,3 +222,87 @@ def ticket():
                          destination='',
                          date='',
                          insurance='')
+
+
+products = [
+    {"id": 1, "name": "iPhone 14", "price": 43890, "brand": "Apple", "color": "Black", "storage": "128GB"},
+    {"id": 2, "name": "Samsung Galaxy S23", "price": 42990, "brand": "Samsung", "color": "White", "storage": "256GB"},
+    {"id": 3, "name": "Google Pixel 7", "price": 27990, "brand": "Google", "color": "Gray", "storage": "128GB"},
+    {"id": 4, "name": "OnePlus 11", "price": 37382, "brand": "OnePlus", "color": "Green", "storage": "256GB"},
+    {"id": 5, "name": "Xiaomi 13", "price": 12899, "brand": "Xiaomi", "color": "Blue", "storage": "128GB"},
+    {"id": 6, "name": "iPhone 14 Pro", "price": 84990, "brand": "Apple", "color": "Silver", "storage": "256GB"},
+    {"id": 7, "name": "Samsung Galaxy Z Flip5", "price": 44669, "brand": "Samsung", "color": "Purple", "storage": "256GB"},
+    {"id": 8, "name": "Google Pixel 7a", "price": 31990, "brand": "Google", "color": "Coral", "storage": "128GB"},
+    {"id": 9, "name": "OnePlus Nord 3", "price": 37470, "brand": "OnePlus", "color": "Black", "storage": "128GB"},
+    {"id": 10, "name": "Xiaomi Redmi Note 12", "price": 45999, "brand": "Xiaomi", "color": "White", "storage": "256GB"},
+    {"id": 11, "name": "iPhone 13", "price": 49999, "brand": "Apple", "color": "Pink", "storage": "128GB"},
+    {"id": 12, "name": "Samsung Galaxy A54", "price": 40739, "brand": "Samsung", "color": "Black", "storage": "128GB"},
+    {"id": 13, "name": "Google Pixel 6a", "price": 28905, "brand": "Google", "color": "Green", "storage": "128GB"},
+    {"id": 14, "name": "OnePlus 10T", "price": 37724, "brand": "OnePlus", "color": "Silver", "storage": "256GB"},
+    {"id": 15, "name": "Xiaomi Poco F5", "price": 24662, "brand": "Xiaomi", "color": "Blue", "storage": "128GB"},
+    {"id": 16, "name": "iPhone 15 Pro Max", "price": 171999, "brand": "Apple", "color": "Titanium", "storage": "512GB"},
+    {"id": 17, "name": "Samsung Galaxy S23 Ultra", "price": 121990, "brand": "Samsung", "color": "Black", "storage": "512GB"},
+    {"id": 18, "name": "Google Pixel 8 Pro", "price": 73499, "brand": "Google", "color": "Obsidian", "storage": "256GB"},
+    {"id": 19, "name": "OnePlus Open", "price": 69990, "brand": "OnePlus", "color": "Black", "storage": "512GB"},
+    {"id": 20, "name": "Xiaomi 13 Ultra", "price": 13299, "brand": "Xiaomi", "color": "Green", "storage": "512GB"}
+]
+
+
+@lab3.route('/lab3/products')
+def products_search():
+    min_price_all = min(product['price'] for product in products)
+    max_price_all = max(product['price'] for product in products)
+    
+    min_price_cookie = request.cookies.get('min_price', '')
+    max_price_cookie = request.cookies.get('max_price', '')
+    
+    min_price_form = request.args.get('min_price', '')
+    max_price_form = request.args.get('max_price', '')
+    
+    min_price = min_price_form if min_price_form != '' else min_price_cookie
+    max_price = max_price_form if max_price_form != '' else max_price_cookie
+    
+    if request.args.get('reset'):
+        min_price = ''
+        max_price = ''
+    
+    filtered_products = products
+    
+    if min_price != '' or max_price != '':
+        try:
+            min_val = float(min_price) if min_price != '' else min_price_all
+            max_val = float(max_price) if max_price != '' else max_price_all
+            
+            if min_val > max_val:
+                min_val, max_val = max_val, min_val
+                min_price, max_price = str(min_val), str(max_val)
+            
+            filtered_products = [
+                product for product in products
+                if min_val <= product['price'] <= max_val
+            ]
+            
+        except ValueError:
+            filtered_products = products
+    
+    response = make_response(render_template(
+        'lab3/products.html',
+        products=filtered_products,
+        min_price=min_price,
+        max_price=max_price,
+        min_price_all=min_price_all,
+        max_price_all=max_price_all,
+        products_count=len(filtered_products),
+        total_products=len(products)
+    ))
+    
+    if not request.args.get('reset'):
+        if min_price != '':
+            response.set_cookie('min_price', min_price, max_age=30*24*60*60)
+        if max_price != '':
+            response.set_cookie('max_price', max_price, max_age=30*24*60*60)
+    else:
+        response.set_cookie('min_price', '', expires=0)
+        response.set_cookie('max_price', '', expires=0)
+    
+    return response
