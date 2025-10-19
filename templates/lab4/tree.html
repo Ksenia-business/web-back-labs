@@ -3,11 +3,88 @@
 {% block lab %}Нравится/не нравится{% endblock %}
 
 {% block main %}
-    <div>
-        Посажено деревьев: {{ tree_count }}
+<style>
+    .tree-counter {
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+        margin: 20px 0;
+        color: #2e7d32;
+    }
+    .tree-form {
+        text-align: center;
+        margin: 20px 0;
+    }
+    .tree-btn {
+        padding: 10px 20px;
+        margin: 0 10px;
+        font-size: 16px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .plant-btn {
+        background: #4caf50;
+        color: white;
+    }
+    .plant-btn:disabled {
+        background: #a5d6a7;
+        cursor: not-allowed;
+    }
+    .cut-btn {
+        background: #f44336;
+        color: white;
+    }
+    .cut-btn:disabled {
+        background: #ef9a9a;
+        cursor: not-allowed;
+    }
+    .message {
+        text-align: center;
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    .max-message {
+        background: #fff3e0;
+        color: #e65100;
+    }
+    .min-message {
+        background: #f5f5f5;
+        color: #757575;
+    }
+</style>
+
+<div class="tree-counter">
+    Посажено деревьев: {{ tree_count }} / {{ max_trees }}
+</div>
+
+<form method="post" class="tree-form">
+    <button 
+        name="operation" 
+        value="plant" 
+        class="tree-btn plant-btn"
+        {% if tree_count >= max_trees %}disabled{% endif %}
+    >
+        Посадить дерево
+    </button>
+    <button 
+        name="operation" 
+        value="cut" 
+        class="tree-btn cut-btn"
+        {% if tree_count <= 0 %}disabled{% endif %}
+    >
+        Срубить дерево
+    </button>
+</form>
+
+{% if tree_count >= max_trees %}
+    <div class="message max-message">
+        Достигнуто максимальное количество деревьев!
     </div>
-    <form method="post">
-        <button name="operation" value="plant">Посадить дерево</button>
-        <button name="operation" value="cut">Срубить дерево</button>
-    </form>
+{% elif tree_count <= 0 %}
+    <div class="message min-message">
+        Нельзя срубить дерево: деревьев нет
+    </div>
+{% endif %}
 {% endblock %}
