@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 4{% endblock %}
+
+{% block main %}
+<style>
+    body {
+        background-color: #f9f3e9;
+        color: #5d4037;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    h1, h2 {
+        color: #6d4c41;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    form {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 25px;
+        background-color: #fff8f0;
+        border: 2px solid #d7ccc8;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    div {
+        margin-bottom: 15px;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #795548;
+    }
+    
+    input[type="text"],
+    input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        border: 2px solid #d7ccc8;
+        border-radius: 5px;
+        background-color: #fffdfb;
+        color: #5d4037;
+        font-size: 16px;
+        box-sizing: border-box;
+    }
+    
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+        outline: none;
+        border-color: #a1887f;
+        background-color: #fff;
+    }
+    
+    button {
+        padding: 10px 20px;
+        margin-right: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        transition: background-color 0.3s;
+    }
+    
+    button[type="submit"] {
+        background-color: #8d6e63;
+        color: white;
+    }
+    
+    button[type="submit"]:hover {
+        background-color: #6d4c41;
+    }
+    
+    button[type="reset"] {
+        background-color: #d7ccc8;
+        color: #5d4037;
+    }
+    
+    button[type="reset"]:hover {
+        background-color: #bcaaa4;
+    }
+    
+    .error {
+        color: #d32f2f;
+        background-color: #ffebee;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ffcdd2;
+        text-align: center;
+        font-weight: bold;
+        display: none;
+    }
+    
+    .error:not(:empty) {
+        display: block;
+    }
+    
+    .welcome-container {
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 40px 30px;
+        background: linear-gradient(135deg, #efebe9 0%, #d7ccc8 100%);
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        text-align: center;
+        border: 2px solid #bcaaa4;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .welcome-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #8d6e63, #6d4c41, #8d6e63);
+    }
+    
+    .welcome-title {
+        color: #5d4037;
+        font-size: 2.2em;
+        margin-bottom: 15px;
+        font-weight: 300;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+    {% if authorized %}
+        <div class="welcome-container">
+            <h1 class="welcome-title">Добро пожаловать, {{ login }}!</h1>
+        </div>
+    {% else %}
+    <h1>Вход</h1>
+    <h2>Пожалуйста, авторизуйтесь</h2>
+    <form method="post">
+        <div>
+            <label for="login">Пользователь:</label>
+            <input type="text" id="login" name="login">
+        </div>
+        <div>
+            <label for="password">Пароль:</label>
+            <input type="password" id="password" name="password">
+        </div>
+        <div class="error">{{ error }}</div>
+        <div>
+            <button type="submit">Войти</button>
+            <button type="reset">Отмена</button>
+        </div>
+    </form>
+    {% endif %}
+{% endblock %}
