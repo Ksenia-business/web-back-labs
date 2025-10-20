@@ -126,6 +126,9 @@ users = [
     {'login': 'sarah', 'password': '861'},
     {'login': 'mike', 'password': '40865'},
     {'login': 'david', 'password': 'david99'},
+    {'login': 'mia', 'password': '56789'},
+    {'login': 'liam', 'password': '740'},
+    {'login': 'sophia', 'password': '94230'},
 ]
 
 
