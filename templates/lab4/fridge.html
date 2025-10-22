@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block lab %}Холодильник{% endblock %}
+
+{% block main %}
+<style>
+    .fridge-container {
+        max-width: 500px;
+        margin: 30px auto;
+        padding: 30px;
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(33, 150, 243, 0.15);
+        border: 3px solid #90caf9;
+        text-align: center;
+    }
+    
+    h1 {
+        color: #1565c0;
+        margin-bottom: 25px;
+        font-size: 2.2em;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    
+    .temperature-form {
+        margin-bottom: 25px;
+    }
+    
+    .temperature-input {
+        width: 200px;
+        padding: 12px 15px;
+        font-size: 18px;
+        border: 2px solid #64b5f6;
+        border-radius: 8px;
+        text-align: center;
+        background-color: #fff;
+        color: #0d47a1;
+        font-weight: bold;
+    }
+    
+    .temperature-input:focus {
+        outline: none;
+        border-color: #1976d2;
+        box-shadow: 0 0 8px rgba(25, 118, 210, 0.3);
+    }
+    
+    .submit-btn {
+        background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        font-size: 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-top: 15px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    
+    .submit-btn:hover {
+        background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(21, 101, 192, 0.3);
+    }
+    
+    .result-container {
+        margin-top: 25px;
+        padding: 20px;
+        background-color: rgba(255, 255, 255, 0.9);
+        border-radius: 10px;
+        border: 2px solid #e3f2fd;
+    }
+    
+    .success-message {
+        color: #2e7d32;
+        font-size: 1.3em;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+    
+    .snowflakes {
+        font-size: 2.5em;
+        color: #1976d2;
+        margin: 15px 0;
+        letter-spacing: 10px;
+    }
+    
+    .error-message {
+        color: #c62828;
+        background-color: #ffebee;
+        padding: 15px;
+        border-radius: 8px;
+        border: 2px solid #ffcdd2;
+        font-weight: bold;
+        font-size: 1.1em;
+        margin: 15px 0;
+        box-shadow: 0 2px 8px rgba(198, 40, 40, 0.1);
+    }
+    
+    .temperature-range {
+        margin-top: 25px;
+        padding: 15px;
+        background-color: #e1f5fe;
+        border-radius: 8px;
+        border: 1px dashed #4fc3f7;
+    }
+    
+    .range-title {
+        color: #0277bd;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    
+    .range-item {
+        margin: 5px 0;
+        color: #01579b;
+        font-size: 0.9em;
+    }
+</style>
+
+<div class="fridge-container">
+    <h1>Управление холодильником</h1>
+    
+    <form method="post" class="temperature-form">
+        <div>
+            <label for="temperature" style="display: block; margin-bottom: 10px; color: #1565c0; font-weight: bold;">
+                Установите температуру (°C):
+            </label>
+            <input type="number" 
+                   id="temperature" 
+                   name="temperature" 
+                   class="temperature-input"
+                   placeholder="Введите температуру"
+                   value="{{ temperature or '' }}">
+        </div>
+        <button type="submit" class="submit-btn">Установить температуру</button>
+    </form>
+    
+    {% if error %}
+        <div class="error-message">{{ error }}</div>
+    {% endif %}
+    
+    {% if message %}
+        <div class="result-container">
+            <div class="success-message">{{ message }}</div>
+            {% if snowflakes > 0 %}
+                <div class="snowflakes">
+                    {% for i in range(snowflakes) %}❄️{% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+    
+
+</div>
+{% endblock %}
