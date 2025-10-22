@@ -82,16 +82,15 @@
     .error {
         color: #d32f2f;
         background-color: #ffebee;
-        padding: 10px;
-        border-radius: 5px;
+        padding: 12px;
+        border-radius: 6px;
         border: 1px solid #ffcdd2;
         text-align: center;
         font-weight: bold;
-        display: none;
-    }
-    
-    .error:not(:empty) {
-        display: block;
+        font-style: italic;
+        font-size: 14px;
+        margin: 15px 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
     
     .welcome-container {
@@ -132,15 +131,21 @@
     }
 
     .logout-form button {
+        background-color: #8d6e63;
         color: white;
         width: 50%;
         margin: 0;
+        padding: 12px;
+    }
+    
+    .logout-form button:hover {
+        background-color: #6d4c41;
     }
 </style>
 
     {% if authorized %}
         <div class="welcome-container">
-            <h1 class="welcome-title">Добро пожаловать, {{ login }}!</h1>
+            <h1 class="welcome-title">Добро пожаловать, {{ user_name }}!</h1>
         </div>
         <div class="logout-form">
             <form action="/lab4/logout" method="post">
@@ -153,13 +158,15 @@
     <form method="post">
         <div>
             <label for="login">Пользователь:</label>
-            <input type="text" id="login" name="login">
+            <input type="text" id="login" name="login" value="{{ login_value or '' }}">
         </div>
         <div>
             <label for="password">Пароль:</label>
             <input type="password" id="password" name="password">
         </div>
+        {% if error %}
         <div class="error">{{ error }}</div>
+        {% endif %}
         <div>
             <button type="submit">Войти</button>
             <button type="reset">Отмена</button>
