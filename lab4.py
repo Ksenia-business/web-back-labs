@@ -207,3 +207,75 @@ def fridge():
                 error = 'Ошибка: введите целое число'
     
     return render_template('lab4/fridge.html', temperature=temperature, message=message, snowflakes=snowflakes, error=error)
+
+
+grain_prices = {
+    'barley': 12000,  
+    'oats': 8500,    
+    'wheat': 9000,   
+    'rye': 15000      
+}
+
+grain_names = {
+    'barley': 'ячмень',
+    'oats': 'овёс', 
+    'wheat': 'пшеница',
+    'rye': 'рожь'
+}
+
+@lab4.route('/lab4/grain_order', methods=['GET', 'POST'])
+def grain_order():
+    if request.method == 'GET':
+        return render_template('lab4/grain_order.html')
+    
+    grain_type = request.form.get('grain_type')
+    weight = request.form.get('weight')
+    
+    errors = []
+    
+    if not grain_type:
+        errors.append('Не выбрано зерно')
+    
+    if not weight:
+        errors.append('Не указан вес')
+    else:
+        try:
+            weight = float(weight)
+            if weight <= 0:
+                errors.append('Вес должен быть положительным числом')
+            elif weight > 100:
+                errors.append('Такого объёма сейчас нет в наличии')
+        except ValueError:
+            errors.append('Вес должен быть числом')
+    
+    if errors:
+        return render_template('lab4/grain_order.html', 
+                             errors=errors,
+                             selected_grain=grain_type,
+                             entered_weight=weight if isinstance(weight, str) else '')
+    
+    price_per_ton = grain_prices[grain_type]
+    total_cost = weight * price_per_ton
+    
+    discount_applied = False
+    discount_amount = 0
+    
+    if weight > 10:
+        discount_amount = total_cost * 0.1
+        total_cost -= discount_amount
+        discount_applied = True
+    
+    def format_number(num):
+        return f"{num:,.0f}".replace(",", " ")
+    
+    grain_name = grain_names[grain_type]
+    
+    success_message = f'Заказ успешно сформирован.<br>Вы заказали {grain_name}.<br>Вес: {weight} т.<br>Сумма к оплате: {format_number(total_cost)} руб.'
+    
+    if discount_applied:
+        success_message += f'<br>Применена скидка 10% за большой объём.<br>Размер скидки: {format_number(discount_amount)} руб.'
+    
+    return render_template('lab4/grain_order.html',
+                         success_message=success_message,
+                         selected_grain=grain_type,
+                         entered_weight=weight)

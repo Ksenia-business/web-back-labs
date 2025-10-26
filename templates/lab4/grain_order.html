@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 4{% endblock %}
+
+{% block main %}
+<style>
+    .order-container {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 40px;
+        background: linear-gradient(135deg, #fffaf5 0%, #fff8f0 100%);
+        border: 1px solid #e8d5c4;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(109, 76, 65, 0.12);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    h1 {
+        color: #8d6e63;
+        text-align: center;
+        margin-bottom: 35px;
+        font-size: 28px;
+        font-weight: 600;
+        letter-spacing: -0.5px;
+        position: relative;
+    }
+    
+    h1:after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #8d6e63, #d7ccc8);
+        border-radius: 2px;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: 600;
+        color: #795548;
+        font-size: 15px;
+        letter-spacing: 0.3px;
+    }
+    
+    select, input[type="number"] {
+        width: 100%;
+        padding: 14px 16px;
+        border: 2px solid #e0d2c8;
+        border-radius: 10px;
+        background-color: #fffefd;
+        color: #5d4037;
+        font-size: 15px;
+        box-sizing: border-box;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(141, 110, 99, 0.05);
+    }
+    
+    select:focus, input[type="number"]:focus {
+        outline: none;
+        border-color: #a1887f;
+        background-color: #fff;
+        box-shadow: 0 4px 12px rgba(141, 110, 99, 0.15);
+        transform: translateY(-1px);
+    }
+    
+    button {
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(135deg, #a1887f 0%, #8d6e63 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(141, 110, 99, 0.3);
+        letter-spacing: 0.5px;
+        margin-top: 10px;
+    }
+    
+    button:hover {
+        background: linear-gradient(135deg, #8d6e63 0%, #795548 100%);
+        box-shadow: 0 6px 20px rgba(141, 110, 99, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    button:active {
+        transform: translateY(0);
+    }
+    
+    .error {
+        color: #d32f2f;
+        background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+        padding: 14px 16px;
+        border-radius: 10px;
+        border: 1px solid #ffcdd2;
+        margin: 20px 0;
+        font-weight: 600;
+        font-style: italic;
+        box-shadow: 0 2px 8px rgba(211, 47, 47, 0.1);
+    }
+    
+    .success {
+        color: #2e7d32;
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+        padding: 18px 20px;
+        border-radius: 10px;
+        border: 1px solid #c8e6c9;
+        margin: 25px 0;
+        font-weight: 600;
+        font-size: 15px;
+        line-height: 1.6;
+        box-shadow: 0 2px 8px rgba(46, 125, 50, 0.1);
+    }
+    
+    .price-info {
+        background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+        padding: 20px;
+        border-radius: 12px;
+        margin: 25px 0;
+        border: 1px solid #e0e0e0;
+        border-left: 5px solid #a1887f;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    
+    .price-info h3 {
+        color: #5d4037;
+        margin-top: 0;
+        margin-bottom: 15px;
+        font-size: 18px;
+        font-weight: 600;
+    }
+    
+    .price-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .price-list li {
+        padding: 8px 0;
+        color: #795548;
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid #eeeeee;
+        font-size: 14px;
+    }
+    
+    .price-list li:last-child {
+        border-bottom: none;
+    }
+    
+    .grain-name {
+        font-weight: 500;
+    }
+    
+    .grain-price {
+        font-weight: 600;
+        color: #8d6e63;
+    }
+    
+    .discount-info {
+        color: #ff6f00;
+        font-weight: 700;
+        margin: 15px 0 5px 0;
+        padding: 12px 15px;
+        background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+        border-radius: 8px;
+        border: 1px solid #ffcc80;
+        text-align: center;
+        font-size: 14px;
+    }
+</style>
+
+<div class="order-container">
+    <h1>Заказ зерна</h1>
+    
+    <div class="price-info">
+        <h3>Цены на зерно:</h3>
+        <ul class="price-list">
+            <li><span class="grain-name">Ячмень:</span> <span class="grain-price">12 000 руб/т</span></li>
+            <li><span class="grain-name">Овёс:</span> <span class="grain-price">8 500 руб/т</span></li>
+            <li><span class="grain-name">Пшеница:</span> <span class="grain-price">9 000 руб/т</span></li>
+            <li><span class="grain-name">Рожь:</span> <span class="grain-price">15 000 руб/т</span></li>
+        </ul>
+        <div class="discount-info">
+            Скидка 10% при заказе более 10 тонн!
+        </div>
+    </div>
+    
+    {% if errors %}
+        {% for error in errors %}
+            <div class="error">{{ error }}</div>
+        {% endfor %}
+    {% endif %}
+    
+    {% if success_message %}
+        <div class="success">{{ success_message | safe }}</div>
+    {% endif %}
+    
+    <form method="post">
+        <div class="form-group">
+            <label for="grain_type">Выберите зерно:</label>
+            <select id="grain_type" name="grain_type">
+                <option value="">-- Выберите зерно --</option>
+                <option value="barley" {% if selected_grain == 'barley' %}selected{% endif %}>Ячмень</option>
+                <option value="oats" {% if selected_grain == 'oats' %}selected{% endif %}>Овёс</option>
+                <option value="wheat" {% if selected_grain == 'wheat' %}selected{% endif %}>Пшеница</option>
+                <option value="rye" {% if selected_grain == 'rye' %}selected{% endif %}>Рожь</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="weight">Вес (тонны):</label>
+            <input type="number" id="weight" name="weight" 
+                   step="0.1" min="0.1" 
+                   value="{{ entered_weight or '' }}"
+                   placeholder="Введите вес в тоннах">
+        </div>
+        
+        <button type="submit">Оформить заказ</button>
+    </form>
+</div>
+{% endblock %}
