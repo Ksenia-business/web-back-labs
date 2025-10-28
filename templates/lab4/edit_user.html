@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 4{% endblock %}
+
+{% block main %}
+<style>
+    .form-container {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 30px;
+        background: linear-gradient(135deg, #fffaf5 0%, #fff8f0 100%);
+        border: 1px solid #e8d5c4;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(109, 76, 65, 0.12);
+    }
+    
+    h1 {
+        color: #8d6e63;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 28px;
+        font-weight: 600;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #795548;
+        font-size: 15px;
+    }
+    
+    input[type="text"],
+    input[type="password"] {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e0d2c8;
+        border-radius: 10px;
+        background-color: #fffefd;
+        color: #5d4037;
+        font-size: 15px;
+        box-sizing: border-box;
+        transition: all 0.3s ease;
+    }
+    
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+        outline: none;
+        border-color: #a1887f;
+        background-color: #fff;
+    }
+    
+    .password-note {
+        color: #795548;
+        font-size: 14px;
+        font-style: italic;
+        margin-top: 5px;
+    }
+    
+    .actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 25px;
+    }
+    
+    button {
+        flex: 1;
+        padding: 14px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-save {
+        background: linear-gradient(135deg, #a1887f 0%, #8d6e63 100%);
+        color: white;
+    }
+    
+    .btn-save:hover {
+        background: linear-gradient(135deg, #8d6e63 0%, #795548 100%);
+    }
+    
+    .btn-cancel {
+        background: linear-gradient(135deg, #d7ccc8 0%, #bcaaa4 100%);
+        color: #5d4037;
+    }
+    
+    .btn-cancel:hover {
+        background: linear-gradient(135deg, #bcaaa4 0%, #a1887f 100%);
+    }
+    
+    .error {
+        color: #d32f2f;
+        background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+        padding: 12px 16px;
+        border-radius: 10px;
+        border: 1px solid #ffcdd2;
+        margin: 15px 0;
+        font-weight: 600;
+    }
+
+    .btn-cancel {
+        background: linear-gradient(135deg, #d7ccc8 0%, #bcaaa4 100%);
+        color: #5d4037;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+        background: linear-gradient(135deg, #bcaaa4 0%, #a1887f 100%);
+        transform: translateY(-1px);
+    }
+</style>
+
+<div class="form-container">
+    <h1>Редактирование данных</h1>
+    
+    {% if errors %}
+        {% for error in errors %}
+            <div class="error">{{ error }}</div>
+        {% endfor %}
+    {% endif %}
+    
+    <form method="post">
+        <div class="form-group">
+            <label for="login">Логин:</label>
+            <input type="text" id="login" name="login" value="{{ login_value or '' }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="name">Имя:</label>
+            <input type="text" id="name" name="name" value="{{ name_value or '' }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Новый пароль:</label>
+            <input type="password" id="password" name="password">
+            <div class="password-note">Оставьте пустым, если не хотите менять пароль</div>
+        </div>
+        
+        <div class="form-group">
+            <label for="password_confirm">Подтверждение нового пароля:</label>
+            <input type="password" id="password_confirm" name="password_confirm">
+        </div>
+        
+        <div class="actions">
+            <button type="submit" class="btn-save">Сохранить изменения</button>
+            <button type="button" class="btn-cancel" onclick="window.location.href='/lab4/users'">Отмена</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 4{% endblock %}
+
+{% block main %}
+<style>
+    .users-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 30px;
+        background: linear-gradient(135deg, #fffaf5 0%, #fff8f0 100%);
+        border: 1px solid #e8d5c4;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(109, 76, 65, 0.12);
+    }
+    
+    h1 {
+        color: #8d6e63;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 28px;
+        font-weight: 600;
+    }
+    
+    .users-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .users-table th,
+    .users-table td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #e0d2c8;
+    }
+    
+    .users-table th {
+        background: linear-gradient(135deg, #8d6e63 0%, #795548 100%);
+        color: white;
+        font-weight: 600;
+    }
+    
+    .users-table tr:hover {
+        background-color: #fffaf5;
+    }
+    
+    .actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+    }
+    
+    button {
+        flex: 1;
+        padding: 14px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-cancel {
+        background: linear-gradient(135deg, #d7ccc8 0%, #bcaaa4 100%);
+        color: #5d4037;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+        background: linear-gradient(135deg, #bcaaa4 0%, #a1887f 100%);
+        transform: translateY(-1px);
+    }
+    
+    .empty-message {
+        text-align: center;
+        color: #795548;
+        font-size: 18px;
+        padding: 40px;
+        background: white;
+        border-radius: 10px;
+        margin: 20px 0;
+    }
+
+    .btn-link {
+        display: inline-block;
+        text-decoration: none;
+        text-align: center;
+        flex: 1;
+        padding: 14px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #d7ccc8 0%, #bcaaa4 100%);
+        color: #5d4037;
+    }
+
+    .btn-link:hover {
+        background: linear-gradient(135deg, #bcaaa4 0%, #a1887f 100%);
+        text-decoration: none;
+        color: #5d4037;
+        transform: translateY(-1px);
+    }
+
+    .delete-form {
+        display: inline;
+        flex: 1;
+    }
+
+    .delete-form button {
+        width: 100%;
+        background: linear-gradient(135deg, #d7ccc8 0%, #bcaaa4 100%);
+        color: #5d4037;
+    }
+
+    .delete-form button:hover {
+        background: linear-gradient(135deg, #bcaaa4 0%, #a1887f 100%);
+        transform: translateY(-1px);
+    }
+</style>
+
+<div class="users-container">
+    <h1>Список пользователей</h1>
+    
+    {% if users %}
+        <table class="users-table">
+            <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Логин</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.login }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="empty-message">
+            Пользователи не найдены
+        </div>
+    {% endif %}
+    
+    <div class="actions">
+        <a href="/lab4/edit_user" class="btn-link">Редактировать мои данные</a>
+        <form action="/lab4/delete_user" method="post" class="delete-form">
+            <button type="submit" class="btn-cancel" onclick="return confirm('Вы уверены, что хотите удалить свой аккаунт?')">Удалить мой аккаунт</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -141,11 +141,35 @@
     .logout-form button:hover {
         background-color: #6d4c41;
     }
+
+    .users-link {
+        text-align: center;
+        margin: 25px 0;
+    }
+
+    .users-link a {
+        display: inline-block;
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #a1887f 0%, #8d6e63 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .users-link a:hover {
+        background: linear-gradient(135deg, #8d6e63 0%, #795548 100%);
+        transform: translateY(-2px);
+    }
 </style>
 
     {% if authorized %}
         <div class="welcome-container">
             <h1 class="welcome-title">Добро пожаловать, {{ user_name }}!</h1>
+            <div class="users-link">
+                <a href="/lab4/users">Посмотреть список пользователей</a>
+            </div>
         </div>
         <div class="logout-form">
             <form action="/lab4/logout" method="post">
@@ -172,5 +196,8 @@
             <button type="reset">Отмена</button>
         </div>
     </form>
+    <div style="text-align: center; margin-top: 20px; color: #795548;">
+        Нет аккаунта? <a href="/lab4/register" style="color: #8d6e63; font-weight: 600; text-decoration: none;">Зарегистрироваться</a>
+    </div>
     {% endif %}
 {% endblock %}
