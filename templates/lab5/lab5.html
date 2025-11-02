@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{# номер лабораторной работы: #}
+{% block lab %}Лабораторная работа 5{% endblock %}
+
+{# основной контент: #}
+{% block main %}
+    <h1 style="text-align: center; margin: 30px 0;">База знаний</h1>
+    
+    <div style="display: flex; gap: 10px; margin-bottom: 20px; justify-content: center;">
+        <a href="/lab5/list" style="padding: 10px 15px; background: #0066cc; color: white; text-decoration: none; border-radius: 4px;">
+            Список статей
+        </a>
+        <a href="/lab5/create" style="padding: 10px 15px; background: #0066cc; color: white; text-decoration: none; border-radius: 4px;">
+            Создать статью
+        </a>
+        <a href="/lab5/login" style="padding: 10px 15px; background: #0066cc; color: white; text-decoration: none; border-radius: 4px;">
+            Войти
+        </a>
+        <a href="/lab5/register" style="padding: 10px 15px; background: #0066cc; color: white; text-decoration: none; border-radius: 4px;">
+            Регистрация
+        </a>
+        <span style="padding: 10px 15px; background: #666; color: white; border-radius: 4px;">
+            Anonymous
+        </span>
+    </div>
+{% endblock %}
