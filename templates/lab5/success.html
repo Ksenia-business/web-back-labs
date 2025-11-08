@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 5{% endblock %}
+
+{% block main %}
+<style>
+    .success-container {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 30px;
+        background: linear-gradient(135deg, #fffaf5 0%, #fff8f0 100%);
+        border: 1px solid #e8d5c4;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(109, 76, 65, 0.12);
+    }
+    
+    h1 {
+        color: #8d6e63;
+        text-align: center;
+        margin-bottom: 25px;
+        font-size: 28px;
+        font-weight: 600;
+    }
+    
+    .success-message {
+        background: linear-gradient(135deg, #e8f5e8 0%, #f1f8e9 100%);
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid #c8e6c9;
+        margin-bottom: 25px;
+        text-align: center;
+    }
+    
+    .success-message p {
+        margin: 0;
+        color: #2e7d32;
+        font-size: 16px;
+        font-weight: 500;
+    }
+    
+    .user-login {
+        font-weight: 700;
+        color: #1b5e20;
+        font-size: 18px;
+    }
+    
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+    
+    .btn {
+        display: inline-block;
+        padding: 14px;
+        text-align: center;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #a1887f 0%, #8d6e63 100%);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #8d6e63 0%, #795548 100%);
+    }
+    
+    .btn-secondary {
+        background: transparent;
+        color: #795548;
+        border: 2px solid #e0d2c8;
+    }
+    
+    .btn-secondary:hover {
+        background: #f5f0eb;
+        border-color: #a1887f;
+    }
+</style>
+
+<div class="success-container">
+    <h1>Поздравляем с успешной регистрацией!</h1>
+    
+    <div class="success-message">
+        <p>Пользователь <span class="user-login">{{ login }}</span> успешно зарегистрирован в системе!</p>
+    </div>
+
+    <div class="action-buttons">
+        <a href="/lab5" class="btn btn-primary">
+            Перейти к базе знаний
+        </a>
+        
+        <a href="/lab5/register" class="btn btn-secondary">
+            Зарегистрировать еще одного пользователя
+        </a>
+    </div>
+</div>
+{% endblock %}
