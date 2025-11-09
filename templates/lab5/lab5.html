@@ -21,7 +21,11 @@
             Регистрация
         </a>
         <span style="padding: 10px 15px; background: #666; color: white; border-radius: 4px;">
-            Anonymous
+            {% if login %}
+                {{ login }}
+            {% else %}
+                Anonymous
+            {% endif %}
         </span>
     </div>
 {% endblock %}
