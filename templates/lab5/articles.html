@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 5{% endblock %}
+
+{% block main %}
+<style>
+    .articles-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 30px;
+    }
+    
+    h1 {
+        color: #8d6e63;
+        text-align: center;
+        margin-bottom: 40px;
+        font-size: 36px;
+        font-weight: 600;
+    }
+    
+    .article-list {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .article-card {
+        background: linear-gradient(135deg, #fffaf5 0%, #fff8f0 100%);
+        border: 1px solid #e8d5c4;
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: 0 4px 20px rgba(109, 76, 65, 0.08);
+        transition: all 0.3s ease;
+    }
+    
+    .article-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(109, 76, 65, 0.15);
+    }
+    
+    .article-title {
+        color: #5d4037;
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #e0d2c8;
+        padding-bottom: 10px;
+    }
+    
+    .article-text {
+        color: #5d4037;
+        font-size: 16px;
+        line-height: 1.6;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid #f5ebe0;
+    }
+    
+    .empty-message {
+        text-align: center;
+        color: #8d6e63;
+        font-size: 18px;
+        padding: 60px 20px;
+        background: linear-gradient(135deg, #f8f4f0 0%, #f0ebe5 100%);
+        border-radius: 16px;
+        border: 2px dashed #d7ccc8;
+    }
+</style>
+
+<div class="articles-container">
+    <h1>Статьи</h1>
+    
+    <div class="article-list">
+        {% for article in articles %}
+            <div class="article-card">
+                <h2 class="article-title">{{ article['title'] }}</h2>
+                <div class="article-text">{{ article['article_text'] }}</div>
+            </div>
+        {% else %}
+            <div class="empty-message">
+                Пока нет ни одной статьи
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
