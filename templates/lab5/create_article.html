@@ -1,26 +1,127 @@
 {% extends "base.html" %}
 
-{# номер лабораторной работы: #}
 {% block lab %}Лабораторная работа 5{% endblock %}
 
-{# основной контент: #}
 {% block main %}
+<style>
+    .create-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 30px;
+        background: linear-gradient(135deg, #fffaf5 0%, #fff8f0 100%);
+        border: 1px solid #e8d5c4;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(109, 76, 65, 0.12);
+    }
+    
+    h1 {
+        color: #8d6e63;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 32px;
+        font-weight: 600;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #795548;
+        font-size: 16px;
+    }
+    
+    input[type="text"] {
+        width: 100%;
+        padding: 14px 16px;
+        border: 2px solid #e0d2c8;
+        border-radius: 10px;
+        background-color: #fffefd;
+        color: #5d4037;
+        font-size: 16px;
+        box-sizing: border-box;
+        transition: all 0.3s ease;
+        font-family: inherit;
+    }
+    
+    input[type="text"]:focus {
+        outline: none;
+        border-color: #a1887f;
+        background-color: #fff;
+        box-shadow: 0 0 0 3px rgba(161, 136, 127, 0.1);
+    }
+    
+    textarea {
+        width: 100%;
+        height: 300px;
+        padding: 16px;
+        border: 2px solid #e0d2c8;
+        border-radius: 10px;
+        background-color: #fffefd;
+        color: #5d4037;
+        font-size: 16px;
+        font-family: inherit;
+        line-height: 1.5;
+        resize: vertical;
+        box-sizing: border-box;
+        transition: all 0.3s ease;
+    }
+    
+    textarea:focus {
+        outline: none;
+        border-color: #a1887f;
+        background-color: #fff;
+        box-shadow: 0 0 0 3px rgba(161, 136, 127, 0.1);
+    }
+    
+    .button-group {
+        text-align: center;
+        margin-top: 30px;
+    }
+    
+    button {
+        padding: 14px 40px;
+        background: linear-gradient(135deg, #a1887f 0%, #8d6e63 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    button:hover {
+        background: linear-gradient(135deg, #8d6e63 0%, #795548 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(109, 76, 65, 0.2);
+    }
+</style>
+
+<div class="create-container">
     <h1>Создание статьи</h1>
     
     <form method="post">
-        <div>
+        <div class="form-group">
             <label>
                 Название статьи:
-                <input type="text" maxlength="50" name="title">
+                <input type="text" name="title">
             </label>
         </div>
 
-        <div>
-            <textarea name="article_text"></textarea>
+        <div class="form-group">
+            <label>
+                Текст статьи:
+                <textarea name="article_text"></textarea>
+            </label>
         </div>
 
-        <div>
-            <button type="submit">Готово</button>
+        <div class="button-group">
+            <button type="submit">Опубликовать статью</button>
         </div>
     </form>
+</div>
 {% endblock %}
