@@ -31,6 +31,7 @@
         padding: 30px;
         box-shadow: 0 4px 20px rgba(109, 76, 65, 0.08);
         transition: all 0.3s ease;
+        position: relative;
     }
     
     .article-card:hover {
@@ -45,6 +46,7 @@
         margin-bottom: 20px;
         border-bottom: 2px solid #e0d2c8;
         padding-bottom: 10px;
+        padding-right: 150px;
     }
     
     .article-text {
@@ -55,6 +57,35 @@
         padding: 20px;
         border-radius: 10px;
         border: 1px solid #f5ebe0;
+        margin-bottom: 20px;
+    }
+    
+    .article-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+    }
+    
+    .btn-edit {
+        padding: 14px 40px;
+        background: linear-gradient(135deg, #a1887f 0%, #8d6e63 100%);
+        color: white !important;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-edit:hover {
+        background: linear-gradient(135deg, #8d6e63 0%, #795548 100%);
+        color: white !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(109, 76, 65, 0.2);
+        text-decoration: none;
     }
     
     .empty-message {
@@ -66,16 +97,55 @@
         border-radius: 16px;
         border: 2px dashed #d7ccc8;
     }
+
+    .create-article-btn {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .btn-create {
+        padding: 14px 40px;
+        background: linear-gradient(135deg, #a1887f 0%, #8d6e63 100%);
+        color: white !important;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-create:hover {
+        background: linear-gradient(135deg, #8d6e63 0%, #795548 100%);
+        color: white !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(109, 76, 65, 0.2);
+        text-decoration: none;
+    }
+
+    .article-actions a,
+    .create-article-btn a {
+        text-decoration: none;
+    }
 </style>
 
 <div class="articles-container">
-    <h1>Статьи</h1>
+    <h1>Мои статьи</h1>
+
+    <div class="create-article-btn">
+        <a href="/lab5/create" class="btn-create">Создать новую статью</a>
+    </div>
     
     <div class="article-list">
         {% for article in articles %}
             <div class="article-card">
                 <h2 class="article-title">{{ article['title'] }}</h2>
                 <div class="article-text">{{ article['article_text'] }}</div>
+                <div class="article-actions">
+                    <a href="/lab5/edit/{{ article['id'] }}" class="btn-edit">Редактировать</a>
+                </div>
             </div>
         {% else %}
             <div class="empty-message">

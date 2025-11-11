@@ -80,9 +80,12 @@
     .button-group {
         text-align: center;
         margin-top: 30px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
     }
     
-    button {
+    .btn-save {
         padding: 14px 40px;
         background: linear-gradient(135deg, #a1887f 0%, #8d6e63 100%);
         color: white;
@@ -92,12 +95,36 @@
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
     }
     
-    button:hover {
+    .btn-cancel {
+        padding: 14px 40px;
+        background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+        color: white !important;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-save:hover {
         background: linear-gradient(135deg, #8d6e63 0%, #795548 100%);
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(109, 76, 65, 0.2);
+        text-decoration: none;
+    }
+    
+    .btn-cancel:hover {
+        background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(244, 67, 54, 0.2);
+        text-decoration: none;
     }
     
     .error {
@@ -110,11 +137,12 @@
         font-weight: 600;
         text-align: center;
         box-shadow: 0 2px 8px rgba(244, 67, 54, 0.2);
+        text-decoration: none;
     }
 </style>
 
 <div class="create-container">
-    <h1>Создание статьи</h1>
+    <h1>Редактирование статьи</h1>
     
     {% if error %}
         <div class="error">{{ error }}</div>
@@ -124,19 +152,20 @@
         <div class="form-group">
             <label>
                 Название статьи:
-                <input type="text" name="title" value="{{ request.form.title if request.form }}">
+                <input type="text" name="title" value="{{ article.title }}">
             </label>
         </div>
 
         <div class="form-group">
             <label>
                 Текст статьи:
-                <textarea name="article_text">{{ request.form.article_text if request.form }}</textarea>
+                <textarea name="article_text">{{ article.article_text }}</textarea>
             </label>
         </div>
 
         <div class="button-group">
-            <button type="submit">Опубликовать статью</button>
+            <button type="submit" class="btn-save">Сохранить изменения</button>
+            <a href="/lab5/list" class="btn-cancel">Отмена</a>
         </div>
     </form>
 </div>
