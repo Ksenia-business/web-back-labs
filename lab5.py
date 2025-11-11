@@ -182,6 +182,7 @@ def create():
     
     title = request.form.get('title')
     article_text = request.form.get('article_text')
+    is_public = request.form.get('is_public') == 'on'
 
     if not title or not title.strip():
         return render_template('lab5/create_article.html', 
@@ -200,11 +201,11 @@ def create():
     login_id = cur.fetchone()["id"]
 
     if current_app.config['DB_TYPE'] == 'postgres':
-        cur.execute("INSERT INTO articles(login_id, title, article_text) VALUES (%s, %s, %s);",
-                (login_id, title, article_text))
+        cur.execute("INSERT INTO articles(login_id, title, article_text, is_favorite, is_public, likes) VALUES (%s, %s, %s, %s, %s, %s);",
+                (login_id, title, article_text, False, is_public, 0))
     else:
-        cur.execute("INSERT INTO articles(login_id, title, article_text) VALUES (?, ?, ?);",
-                (login_id, title, article_text))
+        cur.execute("INSERT INTO articles(login_id, title, article_text, is_favorite, is_public, likes) VALUES (?, ?, ?, ?, ?, ?);",
+                (login_id, title, article_text, False, is_public, 0))
     
     db_close(conn, cur)
     return redirect('/lab5')
@@ -384,3 +385,18 @@ def profile():
     
     db_close(conn, cur)
     return render_template('lab5/profile.html', user=user, error=error)
+
+
+@lab5.route('/lab5/public')
+def public_articles():
+    conn, cur = db_connect()
+    
+    if current_app.config['DB_TYPE'] == 'postgres':
+        cur.execute("SELECT * FROM articles WHERE is_public = TRUE ORDER BY is_favorite DESC, id DESC;")
+    else:
+        cur.execute("SELECT * FROM articles WHERE is_public = 1 ORDER BY is_favorite DESC, id DESC;")
+    
+    articles = cur.fetchall()
+    db_close(conn, cur)
+    
+    return render_template('lab5/public_articles.html', articles=articles, login=session.get('login'))
