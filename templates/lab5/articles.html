@@ -46,7 +46,7 @@
         margin-bottom: 20px;
         border-bottom: 2px solid #e0d2c8;
         padding-bottom: 10px;
-        padding-right: 150px;
+        padding-right: 250px;
     }
     
     .article-text {
@@ -85,6 +85,28 @@
         color: white !important;
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(109, 76, 65, 0.2);
+        text-decoration: none;
+    }
+    
+    .btn-delete {
+        padding: 14px 40px;
+        background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-delete:hover {
+        background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(244, 67, 54, 0.2);
         text-decoration: none;
     }
     
@@ -129,10 +151,14 @@
     .create-article-btn a {
         text-decoration: none;
     }
+
+    .delete-form {
+        display: inline;
+    }
 </style>
 
 <div class="articles-container">
-    <h1>Мои статьи</h1>
+    <h1>Список статей</h1>
 
     <div class="create-article-btn">
         <a href="/lab5/create" class="btn-create">Создать новую статью</a>
@@ -145,6 +171,9 @@
                 <div class="article-text">{{ article['article_text'] }}</div>
                 <div class="article-actions">
                     <a href="/lab5/edit/{{ article['id'] }}" class="btn-edit">Редактировать</a>
+                    <form method="post" action="/lab5/delete/{{ article['id'] }}" class="delete-form" onsubmit="return confirm('Вы уверены, что хотите удалить эту статью?');">
+                        <button type="submit" class="btn-delete">Удалить</button>
+                    </form>
                 </div>
             </div>
         {% else %}

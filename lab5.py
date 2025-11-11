@@ -231,3 +231,40 @@ def edit_article(article_id):
     
     db_close(conn, cur)
     return render_template('lab5/edit_article.html', article=article)
+
+
+@lab5.route('/lab5/delete/<int:article_id>', methods=['POST'])
+def delete_article(article_id):
+    login = session.get('login')
+    if not login:
+        return redirect('/lab5/login')
+    
+    conn, cur = db_connect()
+    
+    if current_app.config['DB_TYPE'] == 'postgres':
+        cur.execute("SELECT * FROM users WHERE login=%s;", (login, ))
+    else:
+        cur.execute("SELECT * FROM users WHERE login=?;", (login, ))
+    user = cur.fetchone()
+    
+    if not user:
+        db_close(conn, cur)
+        return redirect('/lab5/login')
+    
+    if current_app.config['DB_TYPE'] == 'postgres':
+        cur.execute("SELECT * FROM articles WHERE id=%s AND login_id=%s;", (article_id, user['id']))
+    else:
+        cur.execute("SELECT * FROM articles WHERE id=? AND login_id=?;", (article_id, user['id']))
+    article = cur.fetchone()
+    
+    if not article:
+        db_close(conn, cur)
+        return "Статья не найдена или у вас нет прав для её удаления", 404
+    
+    if current_app.config['DB_TYPE'] == 'postgres':
+        cur.execute("DELETE FROM articles WHERE id=%s;", (article_id,))
+    else:
+        cur.execute("DELETE FROM articles WHERE id=?;", (article_id,))
+    
+    db_close(conn, cur)
+    return redirect('/lab5/list')
