@@ -123,13 +123,52 @@ def list():
     login_id = cur.fetchone()["id"]
 
     if current_app.config['DB_TYPE'] == 'postgres':
-        cur.execute("SELECT * FROM articles WHERE login_id=%s;", (login_id, ))
+        cur.execute("SELECT * FROM articles WHERE login_id=%s ORDER BY COALESCE(is_favorite, FALSE) DESC, id DESC;", (login_id, ))
     else:
-        cur.execute("SELECT * FROM articles WHERE login_id=?;", (login_id, ))
+        cur.execute("SELECT * FROM articles WHERE login_id=? ORDER BY COALESCE(is_favorite, FALSE) DESC, id DESC;", (login_id, ))
     articles = cur.fetchall()
 
     db_close(conn, cur)
     return render_template('/lab5/articles.html', articles=articles)
+
+
+@lab5.route('/lab5/toggle_favorite/<int:article_id>', methods=['POST'])
+def toggle_favorite(article_id):
+    login = session.get('login')
+    if not login:
+        return redirect('/lab5/login')
+    
+    conn, cur = db_connect()
+    
+    if current_app.config['DB_TYPE'] == 'postgres':
+        cur.execute("SELECT * FROM users WHERE login=%s;", (login, ))
+    else:
+        cur.execute("SELECT * FROM users WHERE login=?;", (login, ))
+    user = cur.fetchone()
+    
+    if not user:
+        db_close(conn, cur)
+        return redirect('/lab5/login')
+    
+    if current_app.config['DB_TYPE'] == 'postgres':
+        cur.execute("SELECT * FROM articles WHERE id=%s AND login_id=%s;", (article_id, user['id']))
+    else:
+        cur.execute("SELECT * FROM articles WHERE id=? AND login_id=?;", (article_id, user['id']))
+    article = cur.fetchone()
+    
+    if not article:
+        db_close(conn, cur)
+        return "Статья не найдена", 404
+    
+    new_favorite_status = not article['is_favorite']
+    
+    if current_app.config['DB_TYPE'] == 'postgres':
+        cur.execute("UPDATE articles SET is_favorite=%s WHERE id=%s;", (new_favorite_status, article_id))
+    else:
+        cur.execute("UPDATE articles SET is_favorite=? WHERE id=?;", (new_favorite_status, article_id))
+    
+    db_close(conn, cur)
+    return redirect('/lab5/list')
 
 
 @lab5.route('/lab5/create', methods = ['GET', 'POST'])
