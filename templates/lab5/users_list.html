@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 5{% endblock %}
+
+{% block main %}
+<style>
+    .users-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 30px;
+    }
+    
+    h1 {
+        color: #8d6e63;
+        text-align: center;
+        margin-bottom: 40px;
+        font-size: 36px;
+        font-weight: 600;
+    }
+    
+    .users-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: linear-gradient(135deg, #fffaf5 0%, #fff8f0 100%);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(109, 76, 65, 0.08);
+    }
+    
+    .users-table th {
+        background: linear-gradient(135deg, #a1887f 0%, #8d6e63 100%);
+        color: white;
+        padding: 20px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 16px;
+    }
+    
+    .users-table td {
+        padding: 18px 20px;
+        border-bottom: 1px solid #e8d5c4;
+        color: #5d4037;
+        font-size: 15px;
+    }
+    
+    .users-table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .users-table tr:hover {
+        background-color: #f9f5f1;
+    }
+    
+    .user-login {
+        font-weight: 600;
+        color: #5d4037;
+    }
+    
+    .user-name {
+        color: #795548;
+    }
+    
+    .empty-message {
+        text-align: center;
+        color: #8d6e63;
+        font-size: 18px;
+        padding: 60px 20px;
+        background: linear-gradient(135deg, #f8f4f0 0%, #f0ebe5 100%);
+        border-radius: 16px;
+        border: 2px dashed #d7ccc8;
+    }
+    
+    .back-btn {
+        text-align: center;
+        margin-top: 30px;
+    }
+    
+    .btn-back {
+        padding: 14px 40px;
+        background: linear-gradient(135deg, #a1887f 0%, #8d6e63 100%);
+        color: white !important;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-back:hover {
+        background: linear-gradient(135deg, #8d6e63 0%, #795548 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(109, 76, 65, 0.2);
+        text-decoration: none;
+    }
+    
+    .users-count {
+        text-align: center;
+        color: #8d6e63;
+        font-size: 16px;
+        margin-bottom: 20px;
+        font-weight: 500;
+    }
+</style>
+
+<div class="users-container">
+    <h1>Список пользователей</h1>
+    
+    <div class="users-count">
+        Всего зарегистрировано пользователей: {{ users|length }}
+    </div>
+    
+    {% if users %}
+        <table class="users-table">
+            <thead>
+                <tr>
+                    <th>Логин</th>
+                    <th>Реальное имя</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td class="user-login">{{ user['login'] }}</td>
+                        <td class="user-name">{{ user['full_name'] or 'Не указано' }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="empty-message">
+            Нет зарегистрированных пользователей
+        </div>
+    {% endif %}
+    
+    <div class="back-btn">
+        <a href="/lab5" class="btn-back">Вернуться на главную</a>
+    </div>
+</div>
+{% endblock %}

@@ -69,6 +69,7 @@ def login():
                                error='Логин и/или пароль неверны')
     
     session['login'] = login
+    session['full_name'] = user['full_name']
     db_close(conn, cur)
     return render_template('lab5/success_login.html', login=login)
 
@@ -80,8 +81,9 @@ def register():
     
     login = request.form.get('login')
     password = request.form.get('password')
+    full_name = request.form.get('full_name')
 
-    if not login or not password:
+    if not login or not password or not full_name:
         return render_template('lab5/register.html', error='Заполните все поля')
 
     conn, cur = db_connect()
@@ -98,9 +100,9 @@ def register():
 
     password_hash = generate_password_hash(password)
     if current_app.config['DB_TYPE'] == 'postgres':
-        cur.execute("INSERT INTO users (login, password) VALUES (%s, %s);", (login, password_hash))
+        cur.execute("INSERT INTO users (login, password, full_name) VALUES (%s, %s, %s);", (login, password_hash, full_name))
     else:
-        cur.execute("INSERT INTO users (login, password) VALUES (?, ?);", (login, password_hash))
+        cur.execute("INSERT INTO users (login, password, full_name) VALUES (?, ?, ?);", (login, password_hash, full_name))
 
 
     db_close(conn, cur)
@@ -268,3 +270,22 @@ def delete_article(article_id):
     
     db_close(conn, cur)
     return redirect('/lab5/list')
+
+
+@lab5.route('/lab5/users')
+def users_list():
+    login = session.get('login')
+    if not login:
+        return redirect('/lab5/login')
+    
+    conn, cur = db_connect()
+    
+    if current_app.config['DB_TYPE'] == 'postgres':
+        cur.execute("SELECT login, full_name FROM users ORDER BY id;", ())
+    else:
+        cur.execute("SELECT login, full_name FROM users ORDER BY id;", ())
+    
+    users = cur.fetchall()
+    db_close(conn, cur)
+    
+    return render_template('lab5/users_list.html', users=users)

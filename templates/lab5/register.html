@@ -94,8 +94,13 @@
     
     <form action="/lab5/register" method="post">
         <div class="form-group">
+            <label for="full_name">Реальное имя:</label>
+            <input type="text" id="full_name" name="full_name" value="{{ request.form.full_name if request.form }}">
+        </div>
+
+        <div class="form-group">
             <label for="login">Логин:</label>
-            <input type="text" id="login" name="login">
+            <input type="text" id="login" name="login" value="{{ request.form.login if request.form }}">
         </div>
 
         <div class="form-group">
