@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 5{% endblock %}
+
+{% block main %}
+<style>
+    .profile-container {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 30px;
+        background: linear-gradient(135deg, #fffaf5 0%, #fff8f0 100%);
+        border: 1px solid #e8d5c4;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(109, 76, 65, 0.12);
+    }
+    
+    h1 {
+        color: #8d6e63;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 28px;
+        font-weight: 600;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #795548;
+        font-size: 15px;
+    }
+    
+    input[type="text"],
+    input[type="password"] {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e0d2c8;
+        border-radius: 10px;
+        background-color: #fffefd;
+        color: #5d4037;
+        font-size: 15px;
+        box-sizing: border-box;
+        transition: all 0.3s ease;
+        font-family: inherit;
+    }
+    
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+        outline: none;
+        border-color: #a1887f;
+        background-color: #fff;
+        box-shadow: 0 0 0 3px rgba(161, 136, 127, 0.1);
+    }
+    
+    .button-group {
+        text-align: center;
+        margin-top: 30px;
+    }
+    
+    button {
+        padding: 14px 40px;
+        background: linear-gradient(135deg, #a1887f 0%, #8d6e63 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    button:hover {
+        background: linear-gradient(135deg, #8d6e63 0%, #795548 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(109, 76, 65, 0.2);
+    }
+    
+    .error {
+        color: #d32f2f;
+        background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+        padding: 12px 16px;
+        border-radius: 10px;
+        border: 1px solid #f44336;
+        margin: 15px 0;
+        font-weight: 600;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(244, 67, 54, 0.2);
+    }
+    
+    .success {
+        color: #2e7d32;
+        background: linear-gradient(135deg, #e8f5e8 0%, #f1f8e9 100%);
+        padding: 12px 16px;
+        border-radius: 10px;
+        border: 1px solid #c8e6c9;
+        margin: 15px 0;
+        font-weight: 600;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(46, 125, 50, 0.2);
+    }
+    
+    .form-note {
+        color: #8d6e63;
+        font-size: 13px;
+        margin-top: 5px;
+        font-style: italic;
+    }
+    
+    .back-btn {
+        text-align: center;
+        margin-top: 20px;
+    }
+    
+    .btn-back {
+        padding: 10px 20px;
+        background: transparent;
+        color: #8d6e63;
+        border: 2px solid #8d6e63;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-back:hover {
+        background: #8d6e63;
+        color: white;
+        text-decoration: none;
+    }
+</style>
+
+<div class="profile-container">
+    <h1>Изменение профиля</h1>
+    
+    {% if error %}
+        <div class="error">{{ error }}</div>
+    {% endif %}
+    
+    {% if request.args.get('success') %}
+        <div class="success">Профиль успешно обновлен!</div>
+    {% endif %}
+    
+    <form method="post">
+        <div class="form-group">
+            <label for="full_name">Реальное имя:</label>
+            <input type="text" id="full_name" name="full_name" value="{{ user.full_name or '' }}">
+            <div class="form-note">Оставьте пустым, если не хотите менять</div>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Новый пароль:</label>
+            <input type="password" id="password" name="password" placeholder="Введите новый пароль">
+            <div class="form-note">Оставьте пустым, если не хотите менять пароль</div>
+        </div>
+
+        <div class="form-group">
+            <label for="confirm_password">Подтверждение пароля:</label>
+            <input type="password" id="confirm_password" name="confirm_password" placeholder="Повторите новый пароль">
+            <div class="form-note">Обязательно, если меняете пароль</div>
+        </div>
+
+        <div class="button-group">
+            <button type="submit">Сохранить изменения</button>
+        </div>
+    </form>
+    
+    <div class="back-btn">
+        <a href="/lab5" class="btn-back">Вернуться на главную</a>
+    </div>
+</div>
+{% endblock %}

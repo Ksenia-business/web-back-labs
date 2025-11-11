@@ -3,35 +3,93 @@
 {% block lab %}Лабораторная работа 5{% endblock %}
 
 {% block main %}
-    <h1 style="text-align: center; margin: 30px 0;">База знаний</h1>
+<style>
+    .knowledge-base {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+    }
     
-    <div style="display: flex; gap: 10px; margin-bottom: 20px; justify-content: center;">
-        <a href="/lab5/list" style="padding: 10px 15px; background: #0066cc; color: white; text-decoration: none; border-radius: 4px;">
-            Список статей
-        </a>
-        <a href="/lab5/create" style="padding: 10px 15px; background: #0066cc; color: white; text-decoration: none; border-radius: 4px;">
-            Создать статью
-        </a>
-        <a href="/lab5/login" style="padding: 10px 15px; background: #0066cc; color: white; text-decoration: none; border-radius: 4px;">
-            Войти
-        </a>
-        <a href="/lab5/register" style="padding: 10px 15px; background: #0066cc; color: white; text-decoration: none; border-radius: 4px;">
-            Регистрация
-        </a>
-        <a href="/lab5/users" style="padding: 10px 15px; background: #0066cc; color: white; text-decoration: none; border-radius: 4px;">
-            Список пользователей
-        </a>
-        <span style="padding: 10px 15px; background: #666; color: white; border-radius: 4px;">
-            {% if login %}
-                {{ login }}
-            {% else %}
-                Anonymous
-            {% endif %}
-        </span>
+    h1 {
+        color: #8d6e63;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 32px;
+        font-weight: 600;
+    }
+    
+    .nav-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 30px;
+        justify-content: center;
+    }
+    
+    .nav-btn {
+        padding: 12px 20px;
+        background: #a1887f;
+        color: white !important;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .nav-btn:hover {
+        background: #8d6e63;
+        transform: translateY(-1px);
+        text-decoration: none;
+        color: white !important;
+    }
+    
+    .nav-btn.logout {
+        background: #f44336;
+    }
+    
+    .nav-btn.logout:hover {
+        background: #d32f2f;
+    }
+    
+    .user-info {
+        padding: 12px 20px;
+        background: #78909c;
+        color: white !important;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    
+    .user-name {
+        font-weight: 700;
+        color: #8d6e63;
+    }
+</style>
+
+<div class="knowledge-base">
+    <h1>База знаний</h1>
+    
+    <div class="nav-container">
+        <a href="/lab5/profile" class="nav-btn">Мой профиль</a>
+        <a href="/lab5/list" class="nav-btn">Статьи</a>
+        <a href="/lab5/create" class="nav-btn">Создать статью</a>
+        <a href="/lab5/login" class="nav-btn">Войти</a>
+        <a href="/lab5/register" class="nav-btn">Регистрация</a>
+        <a href="/lab5/users" class="nav-btn">Пользователи</a>
+        <a href="/lab5/logout" class="nav-btn logout">Выйти</a>
+        
         {% if login %}
-            <a href="/lab5/logout" style="padding: 10px 15px; background: #cc0000; color: white; text-decoration: none; border-radius: 4px;">
-                Выйти
-            </a>
+            <div class="user-info">
+                {{ login }}
+            </div>
+        {% else %}
+            <div class="user-info">
+                Гость
+            </div>
         {% endif %}
     </div>
+</div>
 {% endblock %}

@@ -289,3 +289,59 @@ def users_list():
     db_close(conn, cur)
     
     return render_template('lab5/users_list.html', users=users)
+
+
+@lab5.route('/lab5/profile', methods=['GET', 'POST'])
+def profile():
+    login = session.get('login')
+    if not login:
+        return redirect('/lab5/login')
+    
+    conn, cur = db_connect()
+    
+    if current_app.config['DB_TYPE'] == 'postgres':
+        cur.execute("SELECT * FROM users WHERE login=%s;", (login, ))
+    else:
+        cur.execute("SELECT * FROM users WHERE login=?;", (login, ))
+    
+    user = cur.fetchone()
+    
+    if not user:
+        db_close(conn, cur)
+        return redirect('/lab5/login')
+    
+    error = None
+    
+    if request.method == 'POST':
+        full_name = request.form.get('full_name')
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+        
+        if full_name and full_name.strip():
+            if current_app.config['DB_TYPE'] == 'postgres':
+                cur.execute("UPDATE users SET full_name=%s WHERE login=%s;", (full_name.strip(), login))
+            else:
+                cur.execute("UPDATE users SET full_name=? WHERE login=?;", (full_name.strip(), login))
+        
+        if password:
+            if password != confirm_password:
+                error = 'Пароли не совпадают'
+            elif len(password) < 3:
+                error = 'Пароль должен содержать минимум 3 символа'
+            else:
+                password_hash = generate_password_hash(password)
+                if current_app.config['DB_TYPE'] == 'postgres':
+                    cur.execute("UPDATE users SET password=%s WHERE login=%s;", (password_hash, login))
+                else:
+                    cur.execute("UPDATE users SET password=? WHERE login=?;", (password_hash, login))
+        
+        if not error:
+            db_close(conn, cur)
+            session['full_name'] = full_name.strip() if full_name and full_name.strip() else session.get('full_name')
+            return redirect('/lab5/profile?success=1')
+        else:
+            db_close(conn, cur)
+            return render_template('lab5/profile.html', user=user, error=error)
+    
+    db_close(conn, cur)
+    return render_template('lab5/profile.html', user=user, error=error)
