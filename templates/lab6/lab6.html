@@ -2,5 +2,218 @@
 
 {% block lab %}Лабораторная работа 6{% endblock %}
 
+{% block script %}
+<script>
+function getOfficeList() {
+    const url = '/lab6/json-rpc-api/';
+    const json = {
+        'jsonrpc': '2.0',
+        'method': 'info',
+        'id': Math.round(Math.random()*1000)
+    };
+    fetch(url, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(json)
+    })
+    .then(function(response) {
+        return response.json()
+    })
+    .then(function(data) {
+        const office_list = data.result;
+        const ul = document.getElementById('office-list');
+        ul.innerHTML = '';
+        
+        for(let i = 0; i < office_list.length; i++) {
+            const office = office_list[i];
+            const li = document.createElement('li');
+            li.className = 'office-item';
+            
+            const officeInfo = document.createElement('span');
+            officeInfo.className = 'office-info';
+            officeInfo.innerText = `Кабинет ${office.number}: ${office.tenant || 'свободен'}`;
+            
+            const bookingButton = document.createElement('button');
+            bookingButton.className = 'btn-book';
+            bookingButton.innerText = 'Зарезервировать';
+            bookingButton.onclick = function() {booking(office.number)};
+            
+            li.appendChild(officeInfo);
+            li.appendChild(bookingButton);
+            ul.appendChild(li);
+        }
+    });
+}
+
+function booking(officeNumber) {
+    const url = '/lab6/json-rpc-api/';
+    const json = {
+        'jsonrpc': '2.0',
+        'method': 'booking',
+        'params': officeNumber,
+        'id': Math.round(Math.random()*1000)
+    };
+    fetch(url, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(json)
+    })
+    .then(function(responce) {
+        return responce.json()
+    })
+    .then(function(data) {
+        if(data.error) {
+            switch(data.error.code) {
+                case 1:
+                    alert('Вы не авторизованы, пожалуйста, авторизуйтесь');
+                    break;
+                case 2:
+                    alert('Офис уже арендуется');   
+                    break;
+                case -32601:
+                    alert('Странная ошибка');   
+                    break;
+            }             
+        }
+        else {
+            getOfficeList();
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    getOfficeList();
+});
+</script>
+{% endblock %}
+
 {% block main %}
+<style>
+    .offices-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 30px;
+    }
+    
+    h1 {
+        color: #8d6e63;
+        text-align: center;
+        margin-bottom: 40px;
+        font-size: 36px;
+        font-weight: 600;
+    }
+    
+    .offices-list {
+        background: linear-gradient(135deg, #fffaf5 0%, #fff8f0 100%);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(109, 76, 65, 0.08);
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+    
+    .office-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid #e8d5c4;
+        transition: all 0.3s ease;
+    }
+    
+    .office-item:last-child {
+        border-bottom: none;
+    }
+    
+    .office-item:hover {
+        background-color: #f9f5f1;
+    }
+    
+    .office-info {
+        font-size: 16px;
+        color: #5d4037;
+        font-weight: 500;
+    }
+    
+    .btn-book {
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #a1887f 0%, #8d6e63 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-book:hover {
+        background: linear-gradient(135deg, #8d6e63 0%, #795548 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(109, 76, 65, 0.3);
+    }
+    
+    .btn-book:active {
+        transform: translateY(0);
+    }
+    
+    .back-btn {
+        text-align: center;
+        margin-top: 30px;
+    }
+    
+    .btn-back {
+        padding: 14px 40px;
+        background: linear-gradient(135deg, #a1887f 0%, #8d6e63 100%);
+        color: white !important;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-back:hover {
+        background: linear-gradient(135deg, #8d6e63 0%, #795548 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(109, 76, 65, 0.2);
+        text-decoration: none;
+    }
+    
+    .offices-count {
+        text-align: center;
+        color: #8d6e63;
+        font-size: 16px;
+        margin-bottom: 20px;
+        font-weight: 500;
+    }
+    
+    .empty-message {
+        text-align: center;
+        color: #8d6e63;
+        font-size: 18px;
+        padding: 60px 20px;
+        background: linear-gradient(135deg, #f8f4f0 0%, #f0ebe5 100%);
+        border-radius: 16px;
+        border: 2px dashed #d7ccc8;
+    }
+</style>
+
+<div class="offices-container">
+    <h1>Список кабинетов</h1>
+    
+    <div class="offices-count">
+        Всего кабинетов: 10
+    </div>
+    
+    <ul class="offices-list" id="office-list"></ul>
+    
+    <div class="back-btn">
+        <a href="/" class="btn-back">Вернуться на главную</a>
+    </div>
+</div>
 {% endblock %}
