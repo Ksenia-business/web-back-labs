@@ -3,7 +3,8 @@ lab6 = Blueprint('lab6', __name__)
 
 offices = []
 for i in range(1, 11):
-    offices.append({"number": i, "tenant": ""})
+    price = 5000 if i <= 5 else 7500
+    offices.append({"number": i, "tenant": "", "price": price})
 
 
 @lab6.route('/lab6/')
