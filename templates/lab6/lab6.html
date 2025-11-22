@@ -33,6 +33,10 @@ function getOfficeList() {
             const li = document.createElement('li');
             li.className = 'office-item';
             
+            if (office.tenant) {
+                li.classList.add('office-booked');
+            }
+            
             const officeInfo = document.createElement('span');
             officeInfo.className = 'office-info';
             const status = office.tenant ? `арендован (${office.tenant})` : 'свободен';
@@ -220,6 +224,24 @@ document.addEventListener('DOMContentLoaded', function() {
         padding: 20px;
         border-bottom: 1px solid #e8d5c4;
         transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .office-booked {
+        background: linear-gradient(135deg, #f5f5f5 0%, #eeeeee 100%) !important;
+        color: #757575;
+    }
+    
+    .office-booked .office-info {
+        color: #757575;
+    }
+    
+    .office-booked .office-info strong {
+        color: #616161;
+    }
+    
+    .office-booked .price {
+        color: #78909c;
     }
     
     .office-item:last-child {
@@ -228,6 +250,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     .office-item:hover {
         background-color: #f9f5f1;
+    }
+    
+    .office-booked:hover {
+        background: linear-gradient(135deg, #e0e0e0 0%, #e8e8e8 100%) !important;
     }
     
     .office-info {
