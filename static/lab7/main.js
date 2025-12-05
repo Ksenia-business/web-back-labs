@@ -5,7 +5,8 @@ function fillFilmList() {
     })
     .then(function (films) {
         let tbody = document.getElementById('film-list');
-        tbody.innerHTML = '';
+        tbody.innerHTML = '';  
+              
         for(let i = 0; i<films.length; i++) {
             let tr = document.createElement('tr');
 
@@ -19,16 +20,22 @@ function fillFilmList() {
             tdYear.innerText = films[i].year;
 
             let editButton = document.createElement('button');
+            editButton.className = 'btn-edit';
             editButton.innerText = 'редактировать';
 
             let delButton = document.createElement('button');
+            delButton.className = 'btn-delete';
             delButton.innerText = 'удалить';
             delButton.onclick = function() {
                 deleteFilm(i, films[i].title_ru);
             };
 
-            tdActions.append(editButton);
-            tdActions.append(delButton);
+            let actionsDiv = document.createElement('div');
+            actionsDiv.className = 'action-buttons';
+            actionsDiv.append(editButton);
+            actionsDiv.append(delButton);
+            
+            tdActions.append(actionsDiv);
 
             tr.append(tdTitle);
             tr.append(tdTitleRus);
@@ -48,4 +55,49 @@ function deleteFilm(id, title) {
         .then(function () {
             fillFilmList();
         });
+}
+
+function showModal() {
+    document.querySelector('div.modal').style.display = 'block';
+    document.querySelector('.modal-overlay').style.display = 'block';
+}
+
+function hideModal() {
+    document.querySelector('div.modal').style.display = 'none';
+    document.querySelector('.modal-overlay').style.display = 'none';
+}
+
+function cancel() {
+    hideModal();
+}
+
+function addFilm() {
+    document.getElementById('id').value = '';
+    document.getElementById('title').value = '';
+    document.getElementById('title-ru').value = '';
+    document.getElementById('year').value = '';
+    document.getElementById('description').value = '';
+    showModal();
+}
+
+function sendFilm() {
+    const film = {
+        title: document.getElementById('title').value,
+        title_ru: document.getElementById('title-ru').value,
+        year: document.getElementById('year').value,
+        description: document.getElementById('description').value
+    }
+
+    const url = `/lab7/rest-api/films/`;
+    const method = 'POST';
+
+    fetch(url, {
+        method: method,
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(film)
+    })
+    .then(function() {
+        fillFilmList();
+        hideModal();
+    });
 }
