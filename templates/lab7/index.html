@@ -84,7 +84,6 @@
     }
     
     .film-year {
-        color: #388e3c;
         font-weight: 600;
     }
     
@@ -281,6 +280,36 @@
     .error-message {
         color: red;
     }
+
+    .film-title-container {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .film-russian-title {
+        font-weight: 600;
+        color: #5d4037;
+        font-size: 16px;
+        margin-bottom: 4px;
+    }
+
+    .film-original-title {
+        font-style: italic;
+        color: #78909c;
+        font-size: 14px;
+    }
+
+    td:first-child {
+        width: 60%; 
+    }
+
+    td:nth-child(2) {
+        width: 15%;
+    }
+
+    td:last-child {
+        width: 25%;
+    }
 </style>
 {% endblock %}
 
@@ -291,7 +320,7 @@
     <table>
         <thead>
             <tr>
-                <th colspan="2">Название</th>
+                <th>Название</th>
                 <th>Год</th>
                 <th>Действие</th>
             </tr>
@@ -322,8 +351,7 @@
         </label><br>
 
         <label>
-            Название фильма на оригинальном языке
-            <i>(если фильм русский, то оставьте пустым):</i>
+            Название фильма на оригинальном языке:
             <input type="text" id="title">
         </label><br>
 

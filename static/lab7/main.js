@@ -11,13 +11,37 @@ function fillFilmList() {
             let tr = document.createElement('tr');
 
             let tdTitle = document.createElement('td');
-            let tdTitleRus = document.createElement('td');
             let tdYear = document.createElement('td');
             let tdActions = document.createElement('td');
 
-            tdTitle.innerText = films[i].title == films[i].title_ru ? '' : films[i].title;
-            tdTitleRus.innerText = films[i].title_ru;
+            let titleContainer = document.createElement('div');
+            titleContainer.className = 'film-title-container';
+
+            let russianTitle = document.createElement('div');
+            russianTitle.className = 'film-russian-title';
+            russianTitle.innerText = films[i].title_ru;
+            russianTitle.style.fontWeight = '600';
+            russianTitle.style.fontSize = '16px';
+            russianTitle.style.color = '#5d4037';
+            russianTitle.style.marginBottom = '5px';
+            
+            titleContainer.append(russianTitle);
+
+            let originalTitle = films[i].title;
+            if (originalTitle) {
+                let originalTitleElement = document.createElement('div');
+                originalTitleElement.className = 'film-original-title';
+                originalTitleElement.innerHTML = `<i>(${originalTitle})</i>`;
+                originalTitleElement.style.fontStyle = 'italic';
+                originalTitleElement.style.fontSize = '14px';
+                originalTitleElement.style.color = '#78909c';
+                
+                titleContainer.append(originalTitleElement);
+            }
+
+            tdTitle.append(titleContainer);
             tdYear.innerText = films[i].year;
+            tdYear.className = 'film-year';
 
             let editButton = document.createElement('button');
             editButton.className = 'btn-edit';
@@ -41,7 +65,6 @@ function fillFilmList() {
             tdActions.append(actionsDiv);
 
             tr.append(tdTitle);
-            tr.append(tdTitleRus);
             tr.append(tdYear);
             tr.append(tdActions);
 
