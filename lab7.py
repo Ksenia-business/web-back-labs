@@ -1,5 +1,6 @@
 from flask import Blueprint, request, render_template, redirect, session, current_app, jsonify, abort
 from os import path
+from datetime import datetime
 
 lab7 = Blueprint('lab7', __name__)
 
@@ -103,14 +104,38 @@ def put_film(id):
         abort(404, description="Фильм с таким ID не найден")
     
     film = request.get_json()
-    if film['description'] == '':
-        return {'description': 'Заполните описание'}, 400
+    errors = {}
     
-    original_title = film.get('title', '')
-    russian_title = film.get('title_ru', '')
+    description = film.get('description', '').strip()
+    if not description:
+        errors['description'] = 'Описание не может быть пустым'
+    elif len(description) > 2000:
+        errors['description'] = 'Описание не должно превышать 2000 символов'
     
-    if (not original_title or original_title.strip() == '') and russian_title:
-        film['title'] = russian_title
+    title_ru = film.get('title_ru', '').strip()
+    if not title_ru:
+        errors['title_ru'] = 'Русское название не может быть пустым'
+
+    title = film.get('title', '').strip()
+    if not title and not title_ru:
+        errors['title'] = 'Оригинальное название не может быть пустым, если русское название тоже пустое'
+    elif not title and title_ru:
+        film['title'] = title_ru
+
+    try:
+        year_str = film.get('year', '')
+        if not year_str:
+            errors['year'] = 'Год не может быть пустым'
+        else:
+            year = int(year_str)
+            current_year = datetime.now().year
+            if year < 1895 or year > current_year:
+                errors['year'] = f'Год должен быть от 1895 до {current_year}'
+    except (ValueError, TypeError):
+        errors['year'] = 'Год должен быть числом'
+    
+    if errors:
+        return jsonify(errors), 400
 
     films[id] = film
     return jsonify(films[id])
@@ -119,14 +144,38 @@ def put_film(id):
 @lab7.route('/lab7/rest-api/films/', methods=['POST'])
 def add_film():
     film = request.get_json()
-    if film['description'] == '':
-        return {'description': 'Заполните описание'}, 400
+    errors = {}
     
-    original_title = film.get('title', '')
-    russian_title = film.get('title_ru', '')
+    description = film.get('description', '').strip()
+    if not description:
+        errors['description'] = 'Описание не может быть пустым'
+    elif len(description) > 2000:
+        errors['description'] = 'Описание не должно превышать 2000 символов'
     
-    if (not original_title or original_title.strip() == '') and russian_title:
-        film['title'] = russian_title
+    title_ru = film.get('title_ru', '').strip()
+    if not title_ru:
+        errors['title_ru'] = 'Русское название не может быть пустым'
+    
+    title = film.get('title', '').strip()
+    if not title and not title_ru:
+        errors['title'] = 'Оригинальное название не может быть пустым, если русское название тоже пустое'
+    elif not title and title_ru:
+        film['title'] = title_ru 
+    
+    try:
+        year_str = film.get('year', '')
+        if not year_str:
+            errors['year'] = 'Год не может быть пустым'
+        else:
+            year = int(year_str)
+            current_year = datetime.now().year
+            if year < 1895 or year > current_year:
+                errors['year'] = f'Год должен быть от 1895 до {current_year}'
+    except (ValueError, TypeError):
+        errors['year'] = 'Год должен быть числом'
+    
+    if errors:
+        return jsonify(errors), 400
 
     films.append(film)
     return jsonify({"id": len(films) - 1}), 201

@@ -278,7 +278,10 @@
     }
 
     .error-message {
-        color: red;
+        color: #d32f2f;
+        font-size: 15px;
+        margin-top: 5px;
+        min-height: 20px;
     }
 
     .film-title-container {
@@ -345,19 +348,23 @@
     <div class="modal-overlay" onclick="cancel()"></div>
     <div class="modal">
         <input type="hidden" id="id">
+        
         <label>
             Название фильма на русском:
             <input type="text" id="title-ru">
+            <div id="title-ru-error" class="error-message"></div>
         </label><br>
 
         <label>
             Название фильма на оригинальном языке:
             <input type="text" id="title">
+            <div id="title-error" class="error-message"></div>
         </label><br>
 
         <label>
             Год выпуска:
             <input type="number" id="year">
+            <div id="year-error" class="error-message"></div>
         </label><br>
 
         <label>

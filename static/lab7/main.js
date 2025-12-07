@@ -85,6 +85,9 @@ function deleteFilm(id, title) {
 
 function showModal() {
     document.getElementById('description-error').innerText = '';
+    document.getElementById('title-ru-error').innerText = '';
+    document.getElementById('title-error').innerText = '';
+    document.getElementById('year-error').innerText = '';
 
     document.querySelector('div.modal').style.display = 'block';
     document.querySelector('.modal-overlay').style.display = 'block';
@@ -105,8 +108,17 @@ function addFilm() {
     document.getElementById('title-ru').value = '';
     document.getElementById('year').value = '';
     document.getElementById('description').value = '';
-    document.getElementById('description-error').innerText = '';
+    
+    clearErrorMessages();
+    
     showModal();
+}
+
+function clearErrorMessages() {
+    document.getElementById('description-error').innerText = '';
+    document.getElementById('title-ru-error').innerText = '';
+    document.getElementById('title-error').innerText = '';
+    document.getElementById('year-error').innerText = '';
 }
 
 function sendFilm() {
@@ -121,7 +133,7 @@ function sendFilm() {
     const url = `/lab7/rest-api/films/${id}`;
     const method = id === '' ? 'POST': 'PUT';
 
-    document.getElementById('description-error').innerText = '';
+    clearErrorMessages();
 
     fetch(url, {
         method: method,
@@ -137,8 +149,18 @@ function sendFilm() {
         return resp.json();
     })
     .then(function(errors) {
-        if(errors.description)
+        if(errors.description) {
             document.getElementById('description-error').innerText = errors.description;
+        }
+        if(errors.title_ru) {
+            document.getElementById('title-ru-error').innerText = errors.title_ru;
+        }
+        if(errors.title) {
+            document.getElementById('title-error').innerText = errors.title;
+        }
+        if(errors.year) {
+            document.getElementById('year-error').innerText = errors.year;
+        }
     });
 }
 
@@ -153,7 +175,9 @@ function editFilm(id) {
         document.getElementById('title-ru').value = film.title_ru;
         document.getElementById('year').value = film.year;
         document.getElementById('description').value = film.description;
-        document.getElementById('description-error').innerText = '';
+        
+        clearErrorMessages();
+        
         showModal();
     });
 }
