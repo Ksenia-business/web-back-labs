@@ -46,15 +46,15 @@ function fillFilmList() {
             let editButton = document.createElement('button');
             editButton.className = 'btn-edit';
             editButton.innerText = 'редактировать';
-            editButton.onclick = function() {
-                editFilm(i);
+             editButton.onclick = function() {
+                editFilm(films[i].id);
             };
 
             let delButton = document.createElement('button');
             delButton.className = 'btn-delete';
             delButton.innerText = 'удалить';
             delButton.onclick = function() {
-                deleteFilm(i, films[i].title_ru);
+                deleteFilm(films[i].id, films[i].title_ru);
             };
 
             let actionsDiv = document.createElement('div');
@@ -170,14 +170,12 @@ function editFilm(id) {
         return data.json();
     })
     .then(function (film) {
-        document.getElementById('id').value = id;
+        document.getElementById('id').value = film.id;
         document.getElementById('title').value = film.title;
         document.getElementById('title-ru').value = film.title_ru;
         document.getElementById('year').value = film.year;
         document.getElementById('description').value = film.description;
-        
-        clearErrorMessages();
-        
+
         showModal();
     });
 }
