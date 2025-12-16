@@ -1,9 +1,7 @@
 {% extends "base.html" %}
 
-{# номер лабораторной работы: #}
 {% block lab %}Лабораторная работа 8{% endblock %}
 
-{# основной контент: #}
 {% block main %}
 <style>
     .knowledge-base {
@@ -75,6 +73,32 @@
         background: linear-gradient(135deg, #f5f5f5 0%, #eeeeee 100%);
         border-color: #ccc;
     }
+    
+    .user-info.logged-in {
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+        border: 2px solid #4caf50;
+        color: #2e7d32 !important;
+    }
+    
+    .logout-btn {
+        padding: 12px 20px;
+        background: #f44336;
+        color: white !important;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .logout-btn:hover {
+        background: #d32f2f;
+        transform: translateY(-1px);
+        text-decoration: none;
+        color: white !important;
+    }
 </style>
 
 <div class="knowledge-base">
@@ -83,12 +107,19 @@
     <div class="nav-container">
         <a href="/lab8/articles" class="nav-btn">Список статей</a>
         <a href="/lab8/create" class="nav-btn">Создать статью</a>
-        <a href="/lab8/login" class="nav-btn">Войти</a>
-        <a href="/lab8/register" class="nav-btn">Регистрация</a>
         
-        <div class="user-info">
-            Пользователь: <strong>anonymous</strong>
-        </div>
+        {% if login %}
+            <div class="user-info logged-in">
+                Пользователь: <strong>{{ login }}</strong>
+            </div>
+            <a href="/lab8/logout" class="logout-btn">Выйти</a>
+        {% else %}
+            <a href="/lab8/login" class="nav-btn">Войти</a>
+            <a href="/lab8/register" class="nav-btn">Регистрация</a>
+            <div class="user-info">
+                Пользователь: <strong>anonymous</strong>
+            </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

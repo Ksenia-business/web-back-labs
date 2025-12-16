@@ -2,7 +2,7 @@ from flask import Blueprint, request, render_template, redirect, session, curren
 from os import path
 from db import db
 from db.models import users, articles
-from flask_login import login_user, login_required, current_user
+from flask_login import login_user, login_required, current_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
 lab8 = Blueprint('lab8', __name__)
@@ -10,7 +10,7 @@ lab8 = Blueprint('lab8', __name__)
 
 @lab8.route('/lab8/')
 def lab():
-    return render_template('lab8/lab8.html', login=session.get('login'))
+    return render_template('lab8/lab8.html', login=current_user.login if current_user.is_authenticated else None)
 
 
 @lab8.route('/lab8/login', methods = ['GET', 'POST'])
@@ -65,6 +65,13 @@ def register():
     new_user = users(login = login_form, password = password_hash)
     db.session.add(new_user)
     db.session.commit()
+    return redirect('/lab8/')
+
+
+@lab8.route('/lab8/logout')
+@login_required
+def logout():
+    logout_user()
     return redirect('/lab8/')
 
 
