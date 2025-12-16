@@ -20,6 +20,7 @@ def login():
     
     login_form = request.form.get('login')
     password_form = request.form.get('password')
+    remember_me = request.form.get('remember') == 'on'
 
     if not login_form or not login_form.strip():
         return render_template('/lab8/login.html',
@@ -33,7 +34,7 @@ def login():
 
     if user:
         if check_password_hash(user.password, password_form):
-            login_user(user, remember = False)
+            login_user(user, remember = remember_me)
             return redirect('/lab8/')
     
     return render_template('/lab8/login.html',
