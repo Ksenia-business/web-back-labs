@@ -149,3 +149,15 @@ def edit_article(article_id):
     return redirect('/lab8/articles')
 
 
+@lab8.route('/lab8/delete/<int:article_id>', methods=['POST'])
+@login_required
+def delete_article(article_id):
+    article = articles.query.filter_by(id=article_id, login_id=current_user.id).first()
+    
+    if not article:
+        return redirect('/lab8/articles')
+    
+    db.session.delete(article)
+    db.session.commit()
+    
+    return redirect('/lab8/articles')
