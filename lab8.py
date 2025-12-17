@@ -116,4 +116,36 @@ def create_article():
     return redirect('/lab8/articles')
 
 
+@lab8.route('/lab8/edit/<int:article_id>', methods=['GET', 'POST'])
+@login_required
+def edit_article(article_id):
+    article = articles.query.filter_by(id=article_id, login_id=current_user.id).first()
+    
+    if not article:
+        return redirect('/lab8/articles')
+    
+    if request.method == 'GET':
+        return render_template('lab8/edit_article.html', article=article)
+    
+    title = request.form.get('title')
+    article_text = request.form.get('article_text')
+    is_public = request.form.get('is_public') == 'on'
+    
+    if not title or not title.strip():
+        return render_template('lab8/edit_article.html', 
+                               article=article,
+                               error='Название статьи не может быть пустым')
+    
+    if not article_text or not article_text.strip():
+        return render_template('lab8/edit_article.html', 
+                               article=article,
+                               error='Текст статьи не может быть пустым')
+    
+    article.title = title.strip()
+    article.article_text = article_text.strip()
+    article.is_public = is_public
+    
+    db.session.commit()
+    return redirect('/lab8/articles')
+
 
