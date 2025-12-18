@@ -32,20 +32,13 @@
         box-shadow: 0 4px 20px rgba(109, 76, 65, 0.08);
         position: relative;
     }
-
-    .article-card.favorite {
-        border: 2px solid #ffd54f;
-        background: #fffde7;
-    }
     
     .article-title {
         color: #5d4037;
         font-size: 24px;
         font-weight: 600;
-        margin-bottom: 20px;
-        border-bottom: 2px solid #e0d2c8;
-        padding-bottom: 10px;
-        padding-right: 200px;
+        margin-bottom: 15px;
+        padding-right: 150px;
     }
     
     .article-text {
@@ -57,6 +50,7 @@
         border-radius: 10px;
         border: 1px solid #f5ebe0;
         margin-bottom: 20px;
+        white-space: pre-wrap;
     }
     
     .article-actions {
@@ -100,24 +94,6 @@
         background: #d32f2f;
         text-decoration: none;
     }
-
-    .btn-favorite {
-        padding: 12px 30px;
-        background: #ffd54f;
-        color: #5d4037 !important;
-        border: none;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-block;
-    }
-    
-    .btn-favorite:hover {
-        background: #ffc107;
-        text-decoration: none;
-    }
     
     .empty-message {
         text-align: center;
@@ -151,48 +127,87 @@
         text-decoration: none;
     }
 
-    .delete-form, .favorite-form {
+    .delete-form {
         display: inline;
     }
 
-    .favorite-badge {
+    .public-badge {
         position: absolute;
-        top: 20px;
-        right: 20px;
-        background: #ffd54f;
-        color: #5d4037;
+        top: 25px;
+        right: 25px;
         padding: 6px 12px;
         border-radius: 15px;
         font-size: 12px;
         font-weight: 600;
+        background: #4caf50;
+        color: white;
+    }
+
+    .nav-links {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .nav-btn {
+        padding: 12px 25px;
+        background: #a1887f;
+        color: white !important;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        display: inline-block;
+        margin: 0 5px;
+    }
+    
+    .nav-btn:hover {
+        background: #8d6e63;
+        text-decoration: none;
     }
 </style>
 
 <div class="articles-container">
-    <h1>Список статей</h1>
+    <h1>Мои статьи</h1>
 
     <div class="create-article-btn">
         <a href="/lab8/create" class="btn-create">Создать новую статью</a>
     </div>
+
+    <div class="nav-links">
+        <a href="/lab8/public_articles" class="nav-btn">Публичные статьи</a>
+        <a href="/lab8/articles" class="nav-btn" style="background: #5d4037;">Мои статьи</a>
+    </div>
     
     <div class="article-list">
-        {% for article in articles %}
-            <div class="article-card">
-                <h2 class="article-title">{{ article['title'] }}</h2>
-                <div class="article-text">{{ article['article_text'] }}</div>
-                <div class="article-actions">
-                    <a href="/lab8/edit/{{ article['id'] }}" class="btn-edit">Редактировать</a>
+        {% if articles %}
+            {% for article in articles %}
+                <div class="article-card">
+                    {% if article.is_public %}
+                        <div class="public-badge">
+                            Публичная
+                        </div>
+                    {% endif %}
                     
-                    <form method="post" action="/lab8/delete/{{ article['id'] }}" class="delete-form" onsubmit="return confirm('Вы уверены, что хотите удалить эту статью?');">
-                        <button type="submit" class="btn-delete">Удалить</button>
-                    </form>
+                    <h2 class="article-title">{{ article.title }}</h2>
+                    
+                    <div class="article-text">{{ article.article_text }}</div>
+                    
+                    <div class="article-actions">
+                        <a href="/lab8/edit/{{ article.id }}" class="btn-edit">Редактировать</a>
+                        
+                        <form method="post" action="/lab8/delete/{{ article.id }}" class="delete-form" 
+                              onsubmit="return confirm('Вы уверены, что хотите удалить эту статью?');">
+                            <button type="submit" class="btn-delete">Удалить</button>
+                        </form>
+                    </div>
                 </div>
-            </div>
+            {% endfor %}
         {% else %}
             <div class="empty-message">
-                Пока нет ни одной статьи
+                У вас пока нет статей.
             </div>
-        {% endfor %}
+        {% endif %}
     </div>
 </div>
 {% endblock %}

@@ -107,6 +107,10 @@
         text-align: center;
         box-shadow: 0 2px 8px rgba(244, 67, 54, 0.2);
     }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
 </style>
 
 <div class="create-container">
@@ -129,6 +133,14 @@
                 Текст статьи:
                 <textarea name="article_text">{{ request.form.article_text if request.form }}</textarea>
             </label>
+        </div>
+
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="is_public">
+                Сделать статью публичной
+            </label>
+            <div class="form-note">Публичные статьи видны всем пользователям</div>
         </div>
 
         <div class="button-group">
