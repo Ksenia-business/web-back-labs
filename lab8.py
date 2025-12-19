@@ -5,6 +5,7 @@ from db.models import users, articles
 from flask_login import login_user, login_required, current_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from sqlalchemy import func
 
 lab8 = Blueprint('lab8', __name__)
 
@@ -180,20 +181,21 @@ def search_articles():
                              public_articles=[],
                              is_authenticated=current_user.is_authenticated)
     
-    search_pattern = f"%{search_query}%"
+    search_lower = search_query.lower()
+    search_pattern = f"%{search_lower}%"
     
     my_articles = []
     if current_user.is_authenticated:
         my_articles = articles.query.filter(
             articles.login_id == current_user.id,
-            (articles.title.ilike(search_pattern)) | 
-            (articles.article_text.ilike(search_pattern))
+            (func.lower(articles.title).like(search_pattern)) | 
+            (func.lower(articles.article_text).like(search_pattern))
         ).all()
     
     public_query = articles.query.filter(
         articles.is_public == True,
-        (articles.title.ilike(search_pattern)) | 
-        (articles.article_text.ilike(search_pattern))
+        (func.lower(articles.title).like(search_pattern)) | 
+        (func.lower(articles.article_text).like(search_pattern))
     )
     
     if current_user.is_authenticated:
@@ -205,5 +207,4 @@ def search_articles():
                          search_query=search_query,
                          my_articles=my_articles,
                          public_articles=public_articles,
-                         is_authenticated=current_user.is_authenticated,
-                         current_user_id=current_user.id if current_user.is_authenticated else None)
+                         is_authenticated=current_user.is_authenticated)
