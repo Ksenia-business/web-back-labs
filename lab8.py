@@ -167,3 +167,43 @@ def delete_article(article_id):
 def public_articles():
     public_articles_list = articles.query.filter_by(is_public=True).all()
     return render_template('lab8/public_articles.html', articles=public_articles_list)
+
+
+@lab8.route('/lab8/search', methods=['GET'])
+def search_articles():
+    search_query = request.args.get('q', '').strip()
+    
+    if not search_query:
+        return render_template('lab8/search_results.html', 
+                             search_query='',
+                             my_articles=[],
+                             public_articles=[],
+                             is_authenticated=current_user.is_authenticated)
+    
+    search_pattern = f"%{search_query}%"
+    
+    my_articles = []
+    if current_user.is_authenticated:
+        my_articles = articles.query.filter(
+            articles.login_id == current_user.id,
+            (articles.title.ilike(search_pattern)) | 
+            (articles.article_text.ilike(search_pattern))
+        ).all()
+    
+    public_query = articles.query.filter(
+        articles.is_public == True,
+        (articles.title.ilike(search_pattern)) | 
+        (articles.article_text.ilike(search_pattern))
+    )
+    
+    if current_user.is_authenticated:
+        public_query = public_query.filter(articles.login_id != current_user.id)
+    
+    public_articles = public_query.all()
+    
+    return render_template('lab8/search_results.html',
+                         search_query=search_query,
+                         my_articles=my_articles,
+                         public_articles=public_articles,
+                         is_authenticated=current_user.is_authenticated,
+                         current_user_id=current_user.id if current_user.is_authenticated else None)
