@@ -181,27 +181,22 @@ def search_articles():
                              public_articles=[],
                              is_authenticated=current_user.is_authenticated)
     
+    all_public_articles = articles.query.filter_by(is_public=True).all()
+    
     search_lower = search_query.lower()
-    search_pattern = f"%{search_lower}%"
     
     my_articles = []
     if current_user.is_authenticated:
-        my_articles = articles.query.filter(
-            articles.login_id == current_user.id,
-            (func.lower(articles.title).like(search_pattern)) | 
-            (func.lower(articles.article_text).like(search_pattern))
-        ).all()
+        my_articles = [
+            article for article in articles.query.filter_by(login_id=current_user.id).all()
+            if search_lower in article.title.lower() or search_lower in article.article_text.lower()
+        ]
     
-    public_query = articles.query.filter(
-        articles.is_public == True,
-        (func.lower(articles.title).like(search_pattern)) | 
-        (func.lower(articles.article_text).like(search_pattern))
-    )
-    
-    if current_user.is_authenticated:
-        public_query = public_query.filter(articles.login_id != current_user.id)
-    
-    public_articles = public_query.all()
+    public_articles = [
+        article for article in all_public_articles
+        if (search_lower in article.title.lower() or search_lower in article.article_text.lower())
+        and (not current_user.is_authenticated or article.login_id != current_user.id)
+    ]
     
     return render_template('lab8/search_results.html',
                          search_query=search_query,

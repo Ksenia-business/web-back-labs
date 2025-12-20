@@ -77,6 +77,37 @@
         box-shadow: 0 0 0 3px rgba(161, 136, 127, 0.1);
     }
     
+    .checkbox-group {
+        margin: 25px 0;
+        padding: 15px;
+        background: linear-gradient(135deg, #f9f4f0 0%, #f5efe9 100%);
+        border: 1px solid #e0d2c8;
+        border-radius: 10px;
+    }
+    
+    .checkbox-group label {
+        display: flex;
+        align-items: center;
+        font-weight: 600;
+        color: #795548;
+        cursor: pointer;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        margin-right: 10px;
+        cursor: pointer;
+    }
+    
+    .form-note {
+        font-size: 14px;
+        color: #a1887f;
+        margin-top: 5px;
+        margin-left: 28px;
+        font-style: italic;
+    }
+    
     .button-group {
         text-align: center;
         margin-top: 30px;
@@ -161,6 +192,14 @@
                 Текст статьи:
                 <textarea name="article_text">{{ article.article_text }}</textarea>
             </label>
+        </div>
+
+        <div class="checkbox-group">
+            <label>
+                <input type="checkbox" name="is_public" {% if article.is_public %}checked{% endif %}>
+                Сделать статью публичной
+            </label>
+            <div class="form-note">Публичные статьи видны всем пользователям</div>
         </div>
 
         <div class="button-group">
