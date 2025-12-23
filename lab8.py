@@ -68,6 +68,9 @@ def register():
     new_user = users(login = login_form, password = password_hash)
     db.session.add(new_user)
     db.session.commit()
+
+    login_user(new_user, remember = False)
+
     return redirect('/lab8/')
 
 
