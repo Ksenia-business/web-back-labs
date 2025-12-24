@@ -5,44 +5,30 @@
 {% block main %}
     <h1 style="text-align: center; color: #2c3e50; margin-bottom: 30px;">Новогодние поздравления 🎄</h1>
     
-    {% if session.get('error') %}
-    <div style="text-align: center; margin-bottom: 20px; padding: 10px; background: #ffebee; color: #c62828; border-radius: 5px;">
-        {{ session.pop('error', '') }}
-    </div>
-    {% endif %}
-    
-    {% if session.get('message') %}
-    <div style="text-align: center; margin-bottom: 20px; padding: 10px; background: #e8f5e9; color: #2e7d32; border-radius: 5px;">
-        {{ session.pop('message', '') }}
-    </div>
-    {% endif %}
-    
     <div style="text-align: center; margin-bottom: 20px;">
         <div style="display: inline-block; padding: 10px 20px; background: #f0f0f0; border-radius: 10px; margin-right: 20px;">
-            Вы открыли: <strong>{{ opened_count }}</strong> из 3 коробок<br>
-            Осталось подарков: <strong>{{ remaining }}</strong> из 10
+            Вы открыли: <strong id="user-count">{{ opened_count }}</strong> из 3 коробок<br>
+            Осталось подарков: <strong id="global-count">{{ remaining }}</strong> из 10
         </div>
         
         {% if current_user.is_authenticated %}
-        <form action="{{ url_for('lab9.santa_refill') }}" method="POST" style="display: inline;">
-            <button type="submit" 
-                    style="padding: 8px 15px; 
-                           background: #c62828; 
-                           color: white; 
-                           border: none; 
-                           border-radius: 5px; 
-                           font-size: 14px; 
-                           cursor: pointer;">
-                🎅 Дед Мороз
-            </button>
-        </form>
+        <button onclick="santaRefill()" 
+                style="padding: 8px 15px; 
+                       background: #c62828; 
+                       color: white; 
+                       border: none; 
+                       border-radius: 5px; 
+                       font-size: 14px; 
+                       cursor: pointer;">
+            🎅 Дед Мороз
+        </button>
         {% endif %}
         
-        <div style="margin-top: 10px; 
+        <div id="limit-message" style="margin-top: 10px; 
              {% if opened_count >= 3 %}color: #e74c3c; font-weight: bold;
              {% else %}color: #666; font-style: italic;{% endif %}">
             {% if opened_count >= 3 %}
-                ❌ Вы достигли лимита в 3 коробки!
+                ❌ Вы достигли лимита в 3 коробки! Сбросьте счетчик, чтобы открыть еще.
             {% else %}
                 Вы можете открыть еще {{ 3 - opened_count }} коробки(у)
             {% endif %}
@@ -59,8 +45,7 @@
         Нажмите на любую коробку с подарком, чтобы открыть поздравление и подарок!
     </p>
 
-    {% if show_congrats and last_gift_data %}
-    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000;">
+    <div id="congrats-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000;">
         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
                    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); 
                    padding: 50px; border-radius: 20px; 
@@ -68,65 +53,45 @@
                    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
                    text-align: center;
                    overflow-y: auto;">
-            <h2 style="color: #0c00b8; margin-top: 0; font-size: 38px; font-weight: bold; 
-                      text-shadow: 2px 2px 4px rgba(0,0,0,0.1); margin-bottom: 30px;">
-                {{ last_gift_data.congrats }}
-            </h2>
+            <h2 id="congrats-text" style="color: #0c00b8; margin-top: 0; font-size: 38px; font-weight: bold; 
+                      text-shadow: 2px 2px 4px rgba(0,0,0,0.1); margin-bottom: 30px;"></h2>
             
-            <img src="{{ url_for('static', filename=last_gift_data.gift_image) }}" 
-                 style="width: 600px; height: 600px; max-width: 80%; max-height: 50vh;
+            <img id="gift-image" src="" style="width: 600px; height: 600px; max-width: 80%; max-height: 50vh;
                      object-fit: cover; 
                      border-radius: 15px; border: 6px solid white; 
                      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
                      margin: 20px auto; display: block;">
             
-            <form action="{{ url_for('lab9.close_congrats') }}" method="POST">
-                <button type="submit" 
-                        style="padding: 15px 60px; 
-                               background: #a1887f;
-                               color: white; border: none; border-radius: 10px; 
-                               font-size: 22px; cursor: pointer; 
-                               margin-top: 30px; font-weight: bold;
-                               box-shadow: 0 8px 25px rgba(161, 136, 127, 0.4);
-                               display: block;
-                               margin-left: auto;
-                               margin-right: auto;">
-                    Закрыть
-                </button>
-            </form>
+            <button onclick="closeModal()" 
+                    style="padding: 15px 60px; 
+                           background: #a1887f;
+                           color: white; border: none; border-radius: 10px; 
+                           font-size: 22px; cursor: pointer; 
+                           margin-top: 30px; font-weight: bold;
+                           box-shadow: 0 8px 25px rgba(161, 136, 127, 0.4);
+                           display: block;
+                           margin-left: auto;
+                           margin-right: auto;">
+                Закрыть
+            </button>
         </div>
     </div>
-    {% endif %}
     
     <div style="position: relative; width: 100%; height: 80vh; margin-top: 20px;">
         {% for img in images %}
-        <div style="position: absolute; 
+        <div id="gift-box-{{ img.id }}" 
+             {% if img.available and not img.opened and opened_count < 3 %}onclick="openGift({{ img.id }})"{% endif %}
+             style="position: absolute; 
                     left: {{img.left}}%; 
                     top: {{img.top}}%; 
                     width: 230px; 
                     height: 230px; 
+                    cursor: {% if not img.available or img.opened or opened_count >= 3 %}default{% else %}pointer{% endif %};
                     opacity: {{ '0.7' if img.opened else '1' }};
                     transition: opacity 0.3s;
                     {% if img.premium and not current_user.is_authenticated %}
                     filter: grayscale(70%);
                     {% endif %}">
-            
-            {% if img.available and not img.opened and opened_count < 3 %}
-            <form action="{{ url_for('lab9.open_gift', gift_id=img.id) }}" method="POST" style="margin: 0; padding: 0;">
-                <button type="submit" 
-                        style="width: 100%; height: 100%; padding: 0; border: none; background: none; cursor: pointer;">
-                    <img src="{{ url_for('static', filename=img.path) }}" 
-                         alt="Подарок {{ loop.index }}"
-                         style="width: 100%; 
-                                height: 100%; 
-                                object-fit: cover;
-                                border: 4px solid {{ '#a1887f' if not img.opened else '#cccccc' }};
-                                {% if img.premium %}border-color: #ff9800; border-width: 5px;{% endif %}
-                                border-radius: 15px;        
-                                box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
-                </button>
-            </form>
-            {% else %}
             <img src="{{ url_for('static', filename=img.path) }}" 
                  alt="Подарок {{ loop.index }}"
                  style="width: 100%; 
@@ -135,8 +100,7 @@
                         border: 4px solid {{ '#a1887f' if not img.opened else '#cccccc' }};
                         {% if img.premium %}border-color: #ff9800; border-width: 5px;{% endif %}
                         border-radius: 15px;        
-                        box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
-            {% endif %}
+                        box-shadow: 0 4px 10px rgba(0,0,0,0.2);">  
             
             {% if img.premium %}
             <div style="position: absolute; top: 5px; right: 5px; background: #ff9800; color: white; 
@@ -189,4 +153,100 @@
     </div>
     
     <div style="height: 200px;"></div>
+
+    <script>
+        let openedCount = {{ opened_count }};
+        
+        function openGift(id) {
+            if (openedCount >= 3) return alert('❌ Вы уже открыли 3 коробки!');
+            const giftBox = document.getElementById(`gift-box-${id}`);
+            if (giftBox.style.opacity === '0.7') return alert('Этот подарок уже открыт!');
+            
+            fetch('/lab9/open_gift', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ gift_id: parseInt(id) })
+            })
+            .then(r => r.json())
+            .then(r => {
+                if (r.success) {
+                    openedCount = r.opened_count;
+                    giftBox.style.opacity = '0.7';
+                    giftBox.querySelector('img').style.borderColor = '#cccccc';
+                    giftBox.onclick = null;
+                    giftBox.style.cursor = 'default';
+                    
+                    const div = document.createElement('div');
+                    div.innerHTML = 'О, нет! Гринч похитил подарок!';
+                    div.style.cssText = `position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);color:#00ff0d;font-size:20px;display:flex;align-items:center;justify-content:center;border-radius:15px;font-weight:bold;text-align:center;padding:10px;`;
+                    giftBox.appendChild(div);
+                    
+                    document.getElementById('congrats-text').textContent = r.congrats;
+                    document.getElementById('gift-image').src = '/static/' + r.gift_image;
+                    document.getElementById('congrats-modal').style.display = 'block';
+                    
+                    document.getElementById('user-count').textContent = openedCount;
+                    document.getElementById('global-count').textContent = r.remaining;
+                    updateMessage();
+                    
+                    if (openedCount >= 3) blockAllGifts();
+                } else {
+                    if (r.error === 'Вы уже открыли 3 коробки') {
+                        alert('❌ Вы уже открыли 3 коробки!');
+                        blockAllGifts();
+                        updateMessage();
+                    } else if (r.error === 'Подарок уже открыт') {
+                        alert('Этот подарок уже открыт!');
+                    } else if (r.error.includes('авторизованным')) {
+                        alert('❌ ' + r.error + '\n\nВойдите в систему!');
+                    }
+                }
+            });
+        }
+        
+        function blockAllGifts() {
+            document.querySelectorAll('[id^="gift-box-"]').forEach(box => {
+                if (box.style.opacity !== '0.7') {
+                    box.style.cursor = 'default';
+                    box.onclick = null;
+                }
+            });
+        }
+        
+        function updateMessage() {
+            const msg = document.getElementById('limit-message');
+            if (openedCount >= 3) {
+                msg.innerHTML = '❌ Вы достигли лимита в 3 коробки!';
+                msg.style.color = '#e74c3c';
+                msg.style.fontWeight = 'bold';
+                msg.style.fontStyle = 'normal';
+            } else {
+                msg.innerHTML = `Вы можете открыть еще ${3 - openedCount} коробки(у)`;
+                msg.style.color = '#666';
+                msg.style.fontStyle = 'italic';
+                msg.style.fontWeight = 'normal';
+            }
+        }
+        
+        function closeModal() {
+            document.getElementById('congrats-modal').style.display = 'none';
+        }
+        
+        function santaRefill() {
+            if (!{{ 'true' if current_user.is_authenticated else 'false' }}) {
+                return alert('❌ Только для авторизованных!');
+            }
+            
+            if (confirm('🎅 Дед Мороз наполнит все коробки?')) {
+                fetch('/lab9/santa_refill', {method: 'POST', headers: {'Content-Type': 'application/json'}})
+                .then(r => r.json())
+                .then(r => {
+                    if (r.success) {
+                        alert(r.message);
+                        location.reload();
+                    }
+                });
+            }
+        }
+    </script>
 {% endblock %}
