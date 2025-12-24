@@ -1,6 +1,9 @@
-from flask import Blueprint, render_template, jsonify, request, session
+from flask import Blueprint, render_template, jsonify, request, session, redirect, url_for
+from flask_login import login_required, current_user
 
 lab9 = Blueprint('lab9', __name__)
+
+PREMIUM_GIFTS = [0, 4, 7, 8]
 
 IMAGE_FILES = [
     'lab9/1.png', 'lab9/2.png', 'lab9/3.png', 
@@ -48,21 +51,30 @@ GIFTS = [
     'lab9/gift10.jpg'
 ]
 
-def initialize_session():
+
+@lab9.route('/lab9/')
+def lab():
     if 'opened_count' not in session:
         session['opened_count'] = 0
     if 'opened_gifts' not in session:
         session['opened_gifts'] = []
-
-def calculate_remaining():
-    return 10 - len(session.get('opened_gifts', []))
-
-def get_images_data():
-    opened_gifts = session.get('opened_gifts', [])
+    if 'show_congrats' not in session:
+        session['show_congrats'] = False
+    if 'last_gift_data' not in session:
+        session['last_gift_data'] = None
+    
+    opened_count = session['opened_count']
+    opened_gifts = session['opened_gifts']
+    remaining = 10 - len(opened_gifts)
+    show_congrats = session['show_congrats']
+    last_gift_data = session['last_gift_data']
     
     images = []
     for i, img in enumerate(IMAGE_FILES):
         is_opened = i in opened_gifts
+        is_premium = i in PREMIUM_GIFTS
+        is_available = not is_premium or (is_premium and current_user.is_authenticated)
+        
         images.append({
             'path': img,
             'left': POSITIONS[i]['left'],
@@ -70,86 +82,64 @@ def get_images_data():
             'congrats': CONGRATS[i],
             'gift': GIFTS[i],
             'id': i,
-            'opened': is_opened  
+            'opened': is_opened,
+            'premium': is_premium,
+            'available': is_available
         })
-    return images
-
-def validate_gift_id(gift_id_str):
-    try:
-        gift_id = int(gift_id_str) if gift_id_str is not None else None
-    except (ValueError, TypeError):
-        return None, 'Некорректный ID'
-    
-    if gift_id is None or gift_id < 0 or gift_id >= len(IMAGE_FILES):
-        return None, 'Некорректный ID'
-    
-    return gift_id, None
-
-def can_open_gift(gift_id):
-    opened_gifts = session.get('opened_gifts', [])
-    opened_count = session.get('opened_count', 0)
-    
-    if gift_id in opened_gifts:
-        return False, 'Подарок уже открыт'
-    
-    if opened_count >= 3:
-        return False, 'Вы уже открыли 3 коробки'
-    
-    return True, None
-
-
-@lab9.route('/lab9/')
-def lab():
-    initialize_session()
-    
-    opened_count = session['opened_count']
-    remaining = calculate_remaining()
-    images = get_images_data()
     
     return render_template('lab9/index.html', 
                          images=images,
                          opened_count=opened_count,
-                         remaining=remaining)
+                         remaining=remaining,
+                         current_user=current_user,
+                         show_congrats=show_congrats,
+                         last_gift_data=last_gift_data)
 
 
-@lab9.route('/lab9/open_gift', methods=['POST'])
-def open_gift():
-    data = request.get_json()
-    gift_id_str = data.get('gift_id')
+@lab9.route('/lab9/open_gift/<int:gift_id>', methods=['POST'])
+def open_gift(gift_id):    
+    if 'opened_count' not in session:
+        session['opened_count'] = 0
+    if 'opened_gifts' not in session:
+        session['opened_gifts'] = []
     
-    gift_id, error = validate_gift_id(gift_id_str)
-    if error:
-        return jsonify({'success': False, 'error': error})
+    opened_gifts = session['opened_gifts']
+    opened_count = session['opened_count']
     
-    can_open, error = can_open_gift(gift_id)
-    if not can_open:
-        return jsonify({'success': False, 'error': error})
+    if opened_count >= 3:
+        session['error'] = 'Вы уже открыли максимальное количество коробок (3)!'
+        return redirect('/lab9/')
     
-    opened_gifts = session.get('opened_gifts', [])
-    opened_count = session.get('opened_count', 0)
+    if gift_id in PREMIUM_GIFTS and not current_user.is_authenticated:
+        session['error'] = 'Этот подарок доступен только авторизованным пользователям!'
+        return redirect('/lab9/')
     
     opened_gifts.append(gift_id)
     session['opened_gifts'] = opened_gifts
     session['opened_count'] = opened_count + 1
     
-    remaining = calculate_remaining()
-    
-    return jsonify({
-        'success': True, 
-        'gift_id': gift_id,
-        'opened_count': opened_count + 1,
-        'remaining': remaining,
+    session['last_gift_data'] = {
         'congrats': CONGRATS[gift_id],
         'gift_image': GIFTS[gift_id]
-    })
+    }
+    session['show_congrats'] = True
+    
+    return redirect('/lab9/')
 
 
-@lab9.route('/lab9/reset_count', methods=['POST'])
-def reset_count():
+@lab9.route('/lab9/close_congrats', methods=['POST'])
+def close_congrats():
+    session['show_congrats'] = False
+    return redirect('/lab9/')
+
+
+@lab9.route('/lab9/santa_refill', methods=['POST'])
+@login_required
+def santa_refill():
     session['opened_count'] = 0
     session['opened_gifts'] = []
+    session['show_congrats'] = False
+    session['last_gift_data'] = None
+    session['message'] = 'Дед Мороз наполнил все коробки заново! Теперь вы можете открыть до 3 коробок.'
     
-    return jsonify({
-        'success': True, 
-        'message': 'Счетчик сброшен. Теперь вы можете открыть до 3 коробок.'
-    })
+    return redirect('/lab9/')

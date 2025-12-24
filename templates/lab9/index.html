@@ -5,38 +5,62 @@
 {% block main %}
     <h1 style="text-align: center; color: #2c3e50; margin-bottom: 30px;">Новогодние поздравления 🎄</h1>
     
+    {% if session.get('error') %}
+    <div style="text-align: center; margin-bottom: 20px; padding: 10px; background: #ffebee; color: #c62828; border-radius: 5px;">
+        {{ session.pop('error', '') }}
+    </div>
+    {% endif %}
+    
+    {% if session.get('message') %}
+    <div style="text-align: center; margin-bottom: 20px; padding: 10px; background: #e8f5e9; color: #2e7d32; border-radius: 5px;">
+        {{ session.pop('message', '') }}
+    </div>
+    {% endif %}
+    
     <div style="text-align: center; margin-bottom: 20px;">
         <div style="display: inline-block; padding: 10px 20px; background: #f0f0f0; border-radius: 10px; margin-right: 20px;">
-            Вы открыли: <strong id="user-count">{{ opened_count }}</strong> из 3 коробок<br>
-            Осталось подарков: <strong id="global-count">{{ remaining }}</strong> из 10
+            Вы открыли: <strong>{{ opened_count }}</strong> из 3 коробок<br>
+            Осталось подарков: <strong>{{ remaining }}</strong> из 10
         </div>
-        <button onclick="resetCounter()" 
-                style="padding: 8px 15px; 
-                       background: #4c77af; 
-                       color: white; 
-                       border: none; 
-                       border-radius: 5px; 
-                       font-size: 14px; 
-                       cursor: pointer;">
-            Сбросить мои коробки
-        </button>
         
-        <div id="limit-message" style="margin-top: 10px; 
+        {% if current_user.is_authenticated %}
+        <form action="{{ url_for('lab9.santa_refill') }}" method="POST" style="display: inline;">
+            <button type="submit" 
+                    style="padding: 8px 15px; 
+                           background: #c62828; 
+                           color: white; 
+                           border: none; 
+                           border-radius: 5px; 
+                           font-size: 14px; 
+                           cursor: pointer;">
+                🎅 Дед Мороз
+            </button>
+        </form>
+        {% endif %}
+        
+        <div style="margin-top: 10px; 
              {% if opened_count >= 3 %}color: #e74c3c; font-weight: bold;
              {% else %}color: #666; font-style: italic;{% endif %}">
             {% if opened_count >= 3 %}
-                ❌ Вы достигли лимита в 3 коробки! Сбросьте счетчик, чтобы открыть еще.
+                ❌ Вы достигли лимита в 3 коробки!
             {% else %}
                 Вы можете открыть еще {{ 3 - opened_count }} коробки(у)
             {% endif %}
         </div>
+        
+        {% if not current_user.is_authenticated %}
+        <div style="margin-top: 10px; color: #ff9800; font-weight: bold;">
+            ⭐ Подарки с золотой рамкой доступны только авторизованным пользователям!
+        </div>
+        {% endif %}
     </div>
     
     <p style="text-align: center; color: #666; font-size: 18px; margin-bottom: 30px;">
         Нажмите на любую коробку с подарком, чтобы открыть поздравление и подарок!
     </p>
 
-    <div id="congrats-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000;">
+    {% if show_congrats and last_gift_data %}
+    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000;">
         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
                    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); 
                    padding: 50px; border-radius: 20px; 
@@ -44,50 +68,103 @@
                    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
                    text-align: center;
                    overflow-y: auto;">
-            <h2 id="congrats-text" style="color: #0c00b8; margin-top: 0; font-size: 38px; font-weight: bold; 
-                      text-shadow: 2px 2px 4px rgba(0,0,0,0.1); margin-bottom: 30px;"></h2>
+            <h2 style="color: #0c00b8; margin-top: 0; font-size: 38px; font-weight: bold; 
+                      text-shadow: 2px 2px 4px rgba(0,0,0,0.1); margin-bottom: 30px;">
+                {{ last_gift_data.congrats }}
+            </h2>
             
-            <img id="gift-image" src="" style="width: 600px; height: 600px; max-width: 80%; max-height: 50vh;
+            <img src="{{ url_for('static', filename=last_gift_data.gift_image) }}" 
+                 style="width: 600px; height: 600px; max-width: 80%; max-height: 50vh;
                      object-fit: cover; 
                      border-radius: 15px; border: 6px solid white; 
                      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
                      margin: 20px auto; display: block;">
             
-            <button onclick="closeModal()" 
-                    style="padding: 15px 60px; 
-                           background: #a1887f;
-                           color: white; border: none; border-radius: 10px; 
-                           font-size: 22px; cursor: pointer; 
-                           margin-top: 30px; font-weight: bold;
-                           box-shadow: 0 8px 25px rgba(161, 136, 127, 0.4);
-                           display: block;
-                           margin-left: auto;
-                           margin-right: auto;">
-                Закрыть
-            </button>
+            <form action="{{ url_for('lab9.close_congrats') }}" method="POST">
+                <button type="submit" 
+                        style="padding: 15px 60px; 
+                               background: #a1887f;
+                               color: white; border: none; border-radius: 10px; 
+                               font-size: 22px; cursor: pointer; 
+                               margin-top: 30px; font-weight: bold;
+                               box-shadow: 0 8px 25px rgba(161, 136, 127, 0.4);
+                               display: block;
+                               margin-left: auto;
+                               margin-right: auto;">
+                    Закрыть
+                </button>
+            </form>
         </div>
     </div>
+    {% endif %}
     
     <div style="position: relative; width: 100%; height: 80vh; margin-top: 20px;">
         {% for img in images %}
-        <div id="gift-box-{{ img.id }}" 
-             {% if not img.opened and opened_count < 3 %}onclick="openGift({{ img.id }})"{% endif %}
-             style="position: absolute; 
+        <div style="position: absolute; 
                     left: {{img.left}}%; 
                     top: {{img.top}}%; 
                     width: 230px; 
                     height: 230px; 
-                    cursor: {% if img.opened or opened_count >= 3 %}default{% else %}pointer{% endif %};
                     opacity: {{ '0.7' if img.opened else '1' }};
-                    transition: opacity 0.3s;">
+                    transition: opacity 0.3s;
+                    {% if img.premium and not current_user.is_authenticated %}
+                    filter: grayscale(70%);
+                    {% endif %}">
+            
+            {% if img.available and not img.opened and opened_count < 3 %}
+            <form action="{{ url_for('lab9.open_gift', gift_id=img.id) }}" method="POST" style="margin: 0; padding: 0;">
+                <button type="submit" 
+                        style="width: 100%; height: 100%; padding: 0; border: none; background: none; cursor: pointer;">
+                    <img src="{{ url_for('static', filename=img.path) }}" 
+                         alt="Подарок {{ loop.index }}"
+                         style="width: 100%; 
+                                height: 100%; 
+                                object-fit: cover;
+                                border: 4px solid {{ '#a1887f' if not img.opened else '#cccccc' }};
+                                {% if img.premium %}border-color: #ff9800; border-width: 5px;{% endif %}
+                                border-radius: 15px;        
+                                box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+                </button>
+            </form>
+            {% else %}
             <img src="{{ url_for('static', filename=img.path) }}" 
                  alt="Подарок {{ loop.index }}"
                  style="width: 100%; 
                         height: 100%; 
                         object-fit: cover;
-                        border: 4px solid {{ '#a1887f' if not img.opened else '#cccccc' }};  
+                        border: 4px solid {{ '#a1887f' if not img.opened else '#cccccc' }};
+                        {% if img.premium %}border-color: #ff9800; border-width: 5px;{% endif %}
                         border-radius: 15px;        
-                        box-shadow: 0 4px 10px rgba(0,0,0,0.2);">  
+                        box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+            {% endif %}
+            
+            {% if img.premium %}
+            <div style="position: absolute; top: 5px; right: 5px; background: #ff9800; color: white; 
+                       padding: 3px 8px; border-radius: 10px; font-size: 12px; font-weight: bold;">
+                ⭐
+            </div>
+            {% endif %}
+            
+            {% if img.premium and not current_user.is_authenticated and not img.opened %}
+            <div style="position: absolute; 
+                        top: 0; 
+                        left: 0; 
+                        width: 100%; 
+                        height: 100%; 
+                        background: rgba(0,0,0,0.7); 
+                        color: #ff9800; 
+                        font-size: 16px; 
+                        display: flex; 
+                        align-items: center; 
+                        justify-content: center; 
+                        border-radius: 15px;
+                        font-weight: bold;
+                        text-align: center;
+                        padding: 10px;">
+                🔒 Только для<br>авторизованных
+            </div>
+            {% endif %}
+            
             {% if img.opened %}
             <div style="position: absolute; 
                         top: 0; 
@@ -112,151 +189,4 @@
     </div>
     
     <div style="height: 200px;"></div>
-
-    <script>
-        let openedCount = {{ opened_count }};
-        
-        function openGift(id) {
-            if (openedCount >= 3) {
-                alert('❌ Вы уже открыли максимальное количество коробок (3)!');
-                return;
-            }
-            
-            const giftBox = document.getElementById(`gift-box-${id}`);
-            if (giftBox.style.opacity === '0.7') {
-                alert('Этот подарок уже открыт! Выберите другую коробку.');
-                return;
-            }
-            
-            fetch('/lab9/open_gift', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ gift_id: parseInt(id) })
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    openedCount = result.opened_count;
-                    
-                    updateGiftBox(id);
-                    updateCounters(result.opened_count, result.remaining);
-                    showCongrats(result.congrats, result.gift_image);
-                    
-                } else {
-                    handleError(result.error);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Произошла ошибка при открытии подарка');
-            });
-        }
-        
-        function updateGiftBox(id) {
-            const giftBox = document.getElementById(`gift-box-${id}`);
-            giftBox.style.opacity = '0.7';
-            giftBox.querySelector('img').style.borderColor = '#cccccc';
-            giftBox.onclick = null;
-            giftBox.style.cursor = 'default';
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.innerHTML = 'О, нет! Гринч похитил подарок!';
-            messageDiv.style.cssText = `
-                position: absolute; 
-                top: 0; left: 0; 
-                width: 100%; height: 100%; 
-                background: rgba(0,0,0,0.6); 
-                color: rgb(0, 255, 13); 
-                font-size: 20px; 
-                display: flex; 
-                align-items: center; 
-                justify-content: center; 
-                border-radius: 15px;
-                font-weight: bold;
-                text-align: center;
-                padding: 10px;
-            `;
-            giftBox.appendChild(messageDiv);
-        }
-        
-        function updateCounters(count, remaining) {
-            document.getElementById('user-count').textContent = count;
-            document.getElementById('global-count').textContent = remaining;
-            
-            const msg = document.getElementById('limit-message');
-            if (count >= 3) {
-                msg.innerHTML = '❌ Вы достигли лимита в 3 коробки! Сбросьте счетчик, чтобы открыть еще.';
-                msg.style.color = '#e74c3c';
-                msg.style.fontWeight = 'bold';
-                msg.style.fontStyle = 'normal';
-                
-                document.querySelectorAll('[id^="gift-box-"]').forEach(box => {
-                    if (box.style.opacity !== '0.7') {
-                        box.style.cursor = 'default';
-                        box.onclick = null;
-                    }
-                });
-            } else {
-                msg.innerHTML = `Вы можете открыть еще ${3 - count} коробки(у)`;
-                msg.style.color = '#666';
-                msg.style.fontWeight = 'normal';
-                msg.style.fontStyle = 'italic';
-            }
-        }
-        
-        function showCongrats(text, image) {
-            document.getElementById('congrats-text').textContent = text;
-            document.getElementById('gift-image').src = '/static/' + image;
-            document.getElementById('congrats-modal').style.display = 'block';
-        }
-        
-        function closeModal() {
-            document.getElementById('congrats-modal').style.display = 'none';
-        }
-        
-        function handleError(error) {
-            if (error === 'Вы уже открыли 3 коробки') {
-                alert('❌ Вы уже открыли максимальное количество коробок (3)!');
-                updateCounters(3, document.getElementById('global-count').textContent);
-            } else if (error === 'Подарок уже открыт') {
-                alert('Этот подарок уже открыт! Выберите другую коробку.');
-            }
-        }
-        
-        function resetCounter() {
-            if (confirm('Сбросить счетчик ваших открытых коробок? Все открытые вами коробки будут сброшены.')) {
-                fetch('/lab9/reset_count', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'}
-                })
-                .then(response => response.json())
-                .then(result => {
-                    if (result.success) {
-                        alert(result.message);
-                        
-                        openedCount = 0;
-                        
-                        document.querySelectorAll('[id^="gift-box-"]').forEach(box => {
-                            box.style.opacity = '1';
-                            box.style.cursor = 'pointer';
-                            box.querySelector('img').style.borderColor = '#a1887f';
-                            
-                            box.querySelectorAll('div').forEach(div => div.remove());
-                            
-                            box.onclick = () => openGift(box.id.split('-')[2]);
-                        });
-                        
-                        updateCounters(0, 10);
-                        
-                    } else {
-                        alert('Ошибка при сбросе счетчика');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Произошла ошибка при сбросе счетчика');
-                });
-            }
-        }
-    </script>
 {% endblock %}
