@@ -274,9 +274,12 @@ def login():
     username = request.form.get('username')
     password = request.form.get('password')
     
-    conn, cur = db_connect()
+    conn = None
+    cur = None
     
     try:
+        conn, cur = db_connect()
+        
         placeholder = get_query_placeholder()
         cur.execute(f'SELECT * FROM users_kino WHERE username = {placeholder}', (username,))
         user = cur.fetchone()
@@ -287,9 +290,7 @@ def login():
             session['full_name'] = user['full_name']
             session['is_admin'] = bool(user['is_admin'])
             
-            cur.close()
-            conn.close()
-            
+            flash('Вход выполнен успешно', 'success')
             return redirect('/rgz/')
         else:
             flash('Неверный логин или пароль', 'error')
@@ -299,8 +300,10 @@ def login():
         print(f"Ошибка входа: {e}")
         
     finally:
-        cur.close()
-        conn.close()
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
         
     return redirect('/rgz/login/')
 
