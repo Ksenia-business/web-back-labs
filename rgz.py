@@ -9,8 +9,110 @@ import os
 
 rgz = Blueprint('rgz', __name__)
 
+_sqlite_initialized = False
+
+def init_sqlite_database_once():
+    """Инициализация SQLite базы только один раз при запуске"""
+    global _sqlite_initialized
+    
+    if _sqlite_initialized:
+        return
+    
+    if current_app.config.get('DB_TYPE') != 'postgres':
+        dir_path = path.dirname(path.realpath(__file__))
+        db_path = path.join(dir_path, "database.db")
+        
+        if not os.path.exists(db_path):
+            print(f"Создание новой SQLite базы данных: {db_path}")
+        
+        init_conn = sqlite3.connect(db_path)
+        init_cur = init_conn.cursor()
+        
+        init_cur.execute('''
+            CREATE TABLE IF NOT EXISTS users_kino (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username VARCHAR(50) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                full_name VARCHAR(100) NOT NULL,
+                is_admin BOOLEAN DEFAULT FALSE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
+        init_cur.execute('''
+            CREATE TABLE IF NOT EXISTS sessions_kino (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                movie_title VARCHAR(200) NOT NULL,
+                session_date DATE NOT NULL,
+                session_time TIME NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
+        init_cur.execute('''
+            CREATE TABLE IF NOT EXISTS bookings_kino (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id INTEGER NOT NULL,
+                user_id INTEGER NOT NULL,
+                seat_number INTEGER NOT NULL,
+                booked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(session_id, seat_number)
+            )
+        ''')
+        
+        init_cur.execute("SELECT COUNT(*) FROM users_kino")
+        user_count = init_cur.fetchone()[0]
+        
+        if user_count == 0:
+            print("👤 Добавляем тестовых пользователей в SQLite...")
+            
+            admin_password = hashlib.sha256('admin'.encode()).hexdigest()
+            init_cur.execute('''
+                INSERT INTO users_kino (username, password, full_name, is_admin) 
+                VALUES (?, ?, ?, ?)
+            ''', ('admin', admin_password, 'Администратор', 1))
+            
+            user_password = hashlib.sha256('user123'.encode()).hexdigest()
+            init_cur.execute('''
+                INSERT INTO users_kino (username, password, full_name, is_admin) 
+                VALUES (?, ?, ?, ?)
+            ''', ('user', user_password, 'Тестовый Пользователь', 0))
+            
+            today = date.today()
+            
+            test_sessions = [
+                ('Матрица', today, '19:00:00'),
+                ('Аватар', today, '21:30:00'),
+                ('Интерстеллар', today, '16:30:00'),
+                ('Начало', today, '18:00:00'),
+                ('Пираты Карибского моря', today, '20:30:00'),
+                ('Гарри Поттер', today, '17:30:00'),
+                ('Властелин колец', today, '20:00:00'),
+                ('Титаник', today, '18:30:00'),
+                ('Крепкий орешек', today, '21:00:00'),
+                ('Назад в будущее', today, '16:00:00')
+            ]
+            
+            for movie, date_obj, time_str in test_sessions:
+                init_cur.execute('''
+                    INSERT INTO sessions_kino (movie_title, session_date, session_time)
+                    VALUES (?, ?, ?)
+                ''', (movie, date_obj.isoformat(), time_str))
+            
+            print(f"✅ Добавлено {len(test_sessions)} тестовых сеансов")
+        
+        init_conn.commit()
+        init_cur.close()
+        init_conn.close()
+        
+        _sqlite_initialized = True
+        print("✅ SQLite база данных инициализирована")
+
 def db_connect():
-    if current_app.config['DB_TYPE'] == 'postgres':
+    if current_app.config.get('DB_TYPE') != 'postgres':
+        init_sqlite_database_once()
+    
+    if current_app.config.get('DB_TYPE') == 'postgres':
         conn = psycopg2.connect(
             host='127.0.0.1',
             database='ksenia_chepurnova_knowledge_base',
@@ -21,111 +123,28 @@ def db_connect():
     else:
         dir_path = path.dirname(path.realpath(__file__))
         db_path = path.join(dir_path, "database.db")
-        
-        init_sqlite_database(db_path)
-        
         conn = sqlite3.connect(db_path)
         conn.row_factory = sqlite3.Row
         cur = conn.cursor()
 
     return conn, cur
 
-def init_sqlite_database(db_path):
-    if not os.path.exists(db_path):
-        print(f"📁 Создание новой SQLite базы данных: {db_path}")
-    
-    temp_conn = sqlite3.connect(db_path)
-    temp_cur = temp_conn.cursor()
-    
-    temp_cur.execute('''
-        CREATE TABLE IF NOT EXISTS users_kino (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username VARCHAR(50) UNIQUE NOT NULL,
-            password VARCHAR(255) NOT NULL,
-            full_name VARCHAR(100) NOT NULL,
-            is_admin BOOLEAN DEFAULT FALSE,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    
-    temp_cur.execute('''
-        CREATE TABLE IF NOT EXISTS sessions_kino (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            movie_title VARCHAR(200) NOT NULL,
-            session_date DATE NOT NULL,
-            session_time TIME NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    
-    temp_cur.execute('''
-        CREATE TABLE IF NOT EXISTS bookings_kino (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            session_id INTEGER NOT NULL,
-            user_id INTEGER NOT NULL,
-            seat_number INTEGER NOT NULL,
-            booked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(session_id, seat_number)
-        )
-    ''')
-    
-    temp_cur.execute("SELECT COUNT(*) FROM users_kino")
-    user_count = temp_cur.fetchone()[0]
-    
-    if user_count == 0:
-        print("👤 Добавляем тестовых пользователей в SQLite...")
-        
-        admin_password = hashlib.sha256('admin'.encode()).hexdigest()
-        temp_cur.execute('''
-            INSERT INTO users_kino (username, password, full_name, is_admin) 
-            VALUES (?, ?, ?, ?)
-        ''', ('admin', admin_password, 'Администратор', 1))
-        
-        user_password = hashlib.sha256('user123'.encode()).hexdigest()
-        temp_cur.execute('''
-            INSERT INTO users_kino (username, password, full_name, is_admin) 
-            VALUES (?, ?, ?, ?)
-        ''', ('user', user_password, 'Тестовый Пользователь', 0))
-        
-        today = date.today()
-        
-        test_sessions = [
-            ('Матрица', today, '19:00:00'),
-            ('Аватар', today, '21:30:00'),
-            ('Интерстеллар', today, '16:30:00'),
-            ('Начало', today, '18:00:00'),  
-            ('Пираты Карибского моря', today, '20:30:00'), 
-            ('Гарри Поттер', today, '17:30:00'), 
-            ('Властелин колец', today, '20:00:00'), 
-            ('Титаник', today, '18:30:00'),  
-            ('Крепкий орешек', today, '21:00:00'),  
-            ('Назад в будущее', today, '16:00:00') 
-        ]
-        
-        for movie, date_obj, time_str in test_sessions:
-            temp_cur.execute('''
-                INSERT INTO sessions_kino (movie_title, session_date, session_time)
-                VALUES (?, ?, ?)
-            ''', (movie, date_obj.isoformat(), time_str))
-        
-        print(f"✅ Добавлено {len(test_sessions)} тестовых сеансов")
-    
-    temp_conn.commit()
-    temp_cur.close()
-    temp_conn.close()
+def get_query_placeholder():
+    if current_app.config.get('DB_TYPE') == 'postgres':
+        return '%s'
+    else:
+        return '?'
 
-def execute_sqlite_query(query, params=None):
+def execute_query(query, params=None):
     conn, cur = db_connect()
     try:
         if params:
-            if current_app.config['DB_TYPE'] != 'postgres':
-                cur.execute(query, params)
-            else:
-                cur.execute(query.replace('?', '%s'), params)
+            cur.execute(query, params)
         else:
             cur.execute(query)
         return conn, cur
     except Exception as e:
+        cur.close()
         conn.close()
         raise e
 
@@ -222,25 +241,16 @@ def register():
     conn, cur = db_connect()
     
     try:
-        if current_app.config['DB_TYPE'] == 'postgres':
-            cur.execute('SELECT id FROM users_kino WHERE username = %s', (username,))
-        else:
-            cur.execute('SELECT id FROM users_kino WHERE username = ?', (username,))
+        placeholder = get_query_placeholder()
+        cur.execute(f'SELECT id FROM users_kino WHERE username = {placeholder}', (username,))
         
         if cur.fetchone():
             flash('Пользователь с таким логином уже существует', 'error')
-            cur.close()
-            conn.close()
             return redirect('/rgz/register/')
         
         hashed_pw = hash_password(password)
-        
-        if current_app.config['DB_TYPE'] == 'postgres':
-            cur.execute('INSERT INTO users_kino (username, password, full_name) VALUES (%s, %s, %s)',
-                        (username, hashed_pw, full_name))
-        else:
-            cur.execute('INSERT INTO users_kino (username, password, full_name) VALUES (?, ?, ?)',
-                        (username, hashed_pw, full_name))
+        cur.execute(f'INSERT INTO users_kino (username, password, full_name) VALUES ({placeholder}, {placeholder}, {placeholder})',
+                    (username, hashed_pw, full_name))
         
         conn.commit()
         flash('Регистрация успешна! Теперь вы можете войти.', 'success')
@@ -267,11 +277,8 @@ def login():
     conn, cur = db_connect()
     
     try:
-        if current_app.config['DB_TYPE'] == 'postgres':
-            cur.execute('SELECT * FROM users_kino WHERE username = %s', (username,))
-        else:
-            cur.execute('SELECT * FROM users_kino WHERE username = ?', (username,))
-        
+        placeholder = get_query_placeholder()
+        cur.execute(f'SELECT * FROM users_kino WHERE username = {placeholder}', (username,))
         user = cur.fetchone()
         
         if user and check_password(user['password'], password):
