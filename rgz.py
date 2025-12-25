@@ -4,8 +4,8 @@ import psycopg2
 import sqlite3
 from psycopg2.extras import RealDictCursor
 from datetime import datetime, date, time
-import json
 import hashlib
+import os
 
 rgz = Blueprint('rgz', __name__)
 
@@ -21,11 +21,113 @@ def db_connect():
     else:
         dir_path = path.dirname(path.realpath(__file__))
         db_path = path.join(dir_path, "database.db")
+        
+        init_sqlite_database(db_path)
+        
         conn = sqlite3.connect(db_path)
         conn.row_factory = sqlite3.Row
         cur = conn.cursor()
 
     return conn, cur
+
+def init_sqlite_database(db_path):
+    if not os.path.exists(db_path):
+        print(f"📁 Создание новой SQLite базы данных: {db_path}")
+    
+    temp_conn = sqlite3.connect(db_path)
+    temp_cur = temp_conn.cursor()
+    
+    temp_cur.execute('''
+        CREATE TABLE IF NOT EXISTS users_kino (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username VARCHAR(50) UNIQUE NOT NULL,
+            password VARCHAR(255) NOT NULL,
+            full_name VARCHAR(100) NOT NULL,
+            is_admin BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
+    temp_cur.execute('''
+        CREATE TABLE IF NOT EXISTS sessions_kino (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            movie_title VARCHAR(200) NOT NULL,
+            session_date DATE NOT NULL,
+            session_time TIME NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
+    temp_cur.execute('''
+        CREATE TABLE IF NOT EXISTS bookings_kino (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
+            seat_number INTEGER NOT NULL,
+            booked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(session_id, seat_number)
+        )
+    ''')
+    
+    temp_cur.execute("SELECT COUNT(*) FROM users_kino")
+    user_count = temp_cur.fetchone()[0]
+    
+    if user_count == 0:
+        print("👤 Добавляем тестовых пользователей в SQLite...")
+        
+        admin_password = hashlib.sha256('admin'.encode()).hexdigest()
+        temp_cur.execute('''
+            INSERT INTO users_kino (username, password, full_name, is_admin) 
+            VALUES (?, ?, ?, ?)
+        ''', ('admin', admin_password, 'Администратор', 1))
+        
+        user_password = hashlib.sha256('user123'.encode()).hexdigest()
+        temp_cur.execute('''
+            INSERT INTO users_kino (username, password, full_name, is_admin) 
+            VALUES (?, ?, ?, ?)
+        ''', ('user', user_password, 'Тестовый Пользователь', 0))
+        
+        today = date.today()
+        
+        test_sessions = [
+            ('Матрица', today, '19:00:00'),
+            ('Аватар', today, '21:30:00'),
+            ('Интерстеллар', today, '16:30:00'),
+            ('Начало', today, '18:00:00'),  
+            ('Пираты Карибского моря', today, '20:30:00'), 
+            ('Гарри Поттер', today, '17:30:00'), 
+            ('Властелин колец', today, '20:00:00'), 
+            ('Титаник', today, '18:30:00'),  
+            ('Крепкий орешек', today, '21:00:00'),  
+            ('Назад в будущее', today, '16:00:00') 
+        ]
+        
+        for movie, date_obj, time_str in test_sessions:
+            temp_cur.execute('''
+                INSERT INTO sessions_kino (movie_title, session_date, session_time)
+                VALUES (?, ?, ?)
+            ''', (movie, date_obj.isoformat(), time_str))
+        
+        print(f"✅ Добавлено {len(test_sessions)} тестовых сеансов")
+    
+    temp_conn.commit()
+    temp_cur.close()
+    temp_conn.close()
+
+def execute_sqlite_query(query, params=None):
+    conn, cur = db_connect()
+    try:
+        if params:
+            if current_app.config['DB_TYPE'] != 'postgres':
+                cur.execute(query, params)
+            else:
+                cur.execute(query.replace('?', '%s'), params)
+        else:
+            cur.execute(query)
+        return conn, cur
+    except Exception as e:
+        conn.close()
+        raise e
 
 def hash_password(password):
     return hashlib.sha256(password.encode('utf-8')).hexdigest()
@@ -67,21 +169,30 @@ def is_past_session(session_date, session_time):
 def main():
     conn, cur = db_connect()
     
-    cur.execute('SELECT * FROM sessions_kino ORDER BY session_date, session_time')
-    sessions = cur.fetchall()
-    
-    sessions_list = []
-    for sess in sessions:
-        session_dict = dict(sess)
-        session_dict['is_past'] = is_past_session(session_dict['session_date'], session_dict['session_time'])
-        sessions_list.append(session_dict)
+    try:
+        cur.execute('SELECT * FROM sessions_kino ORDER BY session_date, session_time')
+        sessions = cur.fetchall()
         
-    cur.close()
-    conn.close()
-    
-    return render_template('rgz/index.html', sessions=sessions_list, 
-                         logged_in='login' in session,
-                         is_admin=is_admin())
+        sessions_list = []
+        for sess in sessions:
+            session_dict = dict(sess)
+            session_dict['is_past'] = is_past_session(session_dict['session_date'], session_dict['session_time'])
+            sessions_list.append(session_dict)
+        
+        cur.close()
+        conn.close()
+        
+        return render_template('rgz/index.html', sessions=sessions_list, 
+                             logged_in='login' in session,
+                             is_admin=is_admin())
+                             
+    except Exception as e:
+        print(f"Ошибка в main: {e}")
+        cur.close()
+        conn.close()
+        return render_template('rgz/index.html', sessions=[], 
+                             logged_in='login' in session,
+                             is_admin=is_admin())
 
 
 @rgz.route('/rgz/register/', methods=['GET', 'POST'])
@@ -110,21 +221,37 @@ def register():
     
     conn, cur = db_connect()
     
-    cur.execute('SELECT id FROM users_kino WHERE username = %s', (username,))
-    
-    if cur.fetchone():
-        flash('Пользователь с таким логином уже существует', 'error')
-        return redirect('/rgz/register/')
-    
-    hashed_pw = hash_password(password)
-    cur.execute('INSERT INTO users_kino (username, password, full_name) VALUES (%s, %s, %s)',
-                (username, hashed_pw, full_name))
-    
-    conn.commit()
-    flash('Регистрация успешна! Теперь вы можете войти.', 'success')
-    
-    cur.close()
-    conn.close()
+    try:
+        if current_app.config['DB_TYPE'] == 'postgres':
+            cur.execute('SELECT id FROM users_kino WHERE username = %s', (username,))
+        else:
+            cur.execute('SELECT id FROM users_kino WHERE username = ?', (username,))
+        
+        if cur.fetchone():
+            flash('Пользователь с таким логином уже существует', 'error')
+            cur.close()
+            conn.close()
+            return redirect('/rgz/register/')
+        
+        hashed_pw = hash_password(password)
+        
+        if current_app.config['DB_TYPE'] == 'postgres':
+            cur.execute('INSERT INTO users_kino (username, password, full_name) VALUES (%s, %s, %s)',
+                        (username, hashed_pw, full_name))
+        else:
+            cur.execute('INSERT INTO users_kino (username, password, full_name) VALUES (?, ?, ?)',
+                        (username, hashed_pw, full_name))
+        
+        conn.commit()
+        flash('Регистрация успешна! Теперь вы можете войти.', 'success')
+        
+    except Exception as e:
+        flash(f'Ошибка при регистрации: {str(e)}', 'error')
+        print(f"Ошибка регистрации: {e}")
+        
+    finally:
+        cur.close()
+        conn.close()
     
     return redirect('/rgz/')
 
@@ -139,19 +266,32 @@ def login():
     
     conn, cur = db_connect()
     
-    cur.execute('SELECT * FROM users_kino WHERE username = %s', (username,))
-    user = cur.fetchone()
-    
-    if user and check_password(user['password'], password):
-        session['login'] = user['username']
-        session['user_id'] = user['id']
-        session['full_name'] = user['full_name']
-        session['is_admin'] = user['is_admin']
+    try:
+        if current_app.config['DB_TYPE'] == 'postgres':
+            cur.execute('SELECT * FROM users_kino WHERE username = %s', (username,))
+        else:
+            cur.execute('SELECT * FROM users_kino WHERE username = ?', (username,))
         
-        return redirect('/rgz/')
-    else:
-        flash('Неверный логин или пароль', 'error')
-
+        user = cur.fetchone()
+        
+        if user and check_password(user['password'], password):
+            session['login'] = user['username']
+            session['user_id'] = user['id']
+            session['full_name'] = user['full_name']
+            session['is_admin'] = bool(user['is_admin'])
+            
+            cur.close()
+            conn.close()
+            
+            return redirect('/rgz/')
+        else:
+            flash('Неверный логин или пароль', 'error')
+            
+    except Exception as e:
+        flash(f'Ошибка при входе: {str(e)}', 'error')
+        print(f"Ошибка входа: {e}")
+        
+    finally:
         cur.close()
         conn.close()
         
@@ -174,15 +314,25 @@ def delete_account():
     
     conn, cur = db_connect()
     
-    cur.execute('DELETE FROM bookings_kino WHERE user_id = %s', (user_id,))
-    cur.execute('DELETE FROM users_kino WHERE id = %s', (user_id,))
-    
-    conn.commit()
-    session.clear()
-    flash('Ваш аккаунт был удален', 'info')
-
-    cur.close()
-    conn.close()
+    try:
+        if current_app.config['DB_TYPE'] == 'postgres':
+            cur.execute('DELETE FROM bookings_kino WHERE user_id = %s', (user_id,))
+            cur.execute('DELETE FROM users_kino WHERE id = %s', (user_id,))
+        else:
+            cur.execute('DELETE FROM bookings_kino WHERE user_id = ?', (user_id,))
+            cur.execute('DELETE FROM users_kino WHERE id = ?', (user_id,))
+        
+        conn.commit()
+        session.clear()
+        flash('Ваш аккаунт был удален', 'info')
+        
+    except Exception as e:
+        conn.rollback()
+        flash(f'Ошибка при удалении аккаунта: {str(e)}', 'error')
+        
+    finally:
+        cur.close()
+        conn.close()
     
     return redirect('/rgz/')
 
@@ -205,6 +355,8 @@ def view_session(session_id):
         
         if not session_data:
             flash('Сеанс не найден', 'error')
+            cur.close()
+            conn.close()
             return redirect('/rgz/')
         
         session_dict = dict(session_data)
@@ -249,6 +401,9 @@ def view_session(session_id):
         
         session_dict['user_id'] = session['user_id']
         
+        cur.close()
+        conn.close()
+        
         return render_template('rgz/session.html',
                              session=session_dict,
                              booked_seats=booked_seats,
@@ -258,11 +413,9 @@ def view_session(session_id):
                              
     except Exception as e:
         flash(f'Ошибка загрузки сеанса: {str(e)}', 'error')
-        return redirect('/rgz/')
-        
-    finally:
         cur.close()
         conn.close()
+        return redirect('/rgz/')
 
 
 @rgz.route('/rgz/admin/')
@@ -289,6 +442,9 @@ def admin_panel():
         ''')
         bookings = cur.fetchall()
         
+        cur.close()
+        conn.close()
+        
         return render_template('rgz/admin.html',
                              sessions=list(sessions),
                              users=list(users),
@@ -296,11 +452,9 @@ def admin_panel():
                              
     except Exception as e:
         flash(f'Ошибка загрузки панели администратора: {str(e)}', 'error')
-        return redirect('/rgz/')
-        
-    finally:
         cur.close()
         conn.close()
+        return redirect('/rgz/')
 
 
 @rgz.route('/rgz/admin/create_session/', methods=['POST'])
@@ -318,17 +472,23 @@ def create_session():
         return redirect('/rgz/admin/')
     
     conn, cur = db_connect()
-
-    cur.execute('''
-        INSERT INTO sessions_kino (movie_title, session_date, session_time)
-        VALUES (%s, %s, %s)
-    ''', (movie_title, session_date, session_time))
     
-    conn.commit()
-    flash('Сеанс успешно создан', 'success')
-
-    cur.close()
-    conn.close()
+    try:
+        cur.execute('''
+            INSERT INTO sessions_kino (movie_title, session_date, session_time)
+            VALUES (?, ?, ?)
+        ''', (movie_title, session_date, session_time))
+        
+        conn.commit()
+        flash('Сеанс успешно создан', 'success')
+        
+    except Exception as e:
+        conn.rollback()
+        flash(f'Ошибка при создании сеанса: {str(e)}', 'error')
+        
+    finally:
+        cur.close()
+        conn.close()
     
     return redirect('/rgz/admin/')
 
@@ -340,13 +500,19 @@ def delete_session(session_id):
         return redirect('/rgz/')
     
     conn, cur = db_connect()
-
-    cur.execute('DELETE FROM sessions_kino WHERE id = %s', (session_id,))
-    conn.commit()
-    flash('Сеанс удален', 'success')
-
-    cur.close()
-    conn.close()
+    
+    try:
+        cur.execute('DELETE FROM sessions_kino WHERE id = ?', (session_id,))
+        conn.commit()
+        flash('Сеанс удален', 'success')
+        
+    except Exception as e:
+        conn.rollback()
+        flash(f'Ошибка при удалении сеанса: {str(e)}', 'error')
+        
+    finally:
+        cur.close()
+        conn.close()
     
     return redirect('/rgz/admin/')
 
@@ -359,7 +525,7 @@ def cancel_booking_admin(booking_id):
     
     conn, cur = db_connect()
     
-    cur.execute('DELETE FROM bookings_kino WHERE id = %s', (booking_id,))
+    cur.execute('DELETE FROM bookings_kino WHERE id = ?', (booking_id,))
     conn.commit()
     flash('Бронь отменена', 'success')
 
@@ -390,13 +556,12 @@ def api():
         conn, cur = db_connect()
         
         try:
-            if current_app.config['DB_TYPE'] == 'postgres':
-                cur.execute('SELECT * FROM sessions_kino WHERE id = %s', (session_id,))
-            else:
-                cur.execute('SELECT * FROM sessions_kino WHERE id = ?', (session_id,))
+            cur.execute('SELECT * FROM sessions_kino WHERE id = ?', (session_id,))
             
             session_data = cur.fetchone()
             if not session_data:
+                cur.close()
+                conn.close()
                 return jsonify({
                     'jsonrpc': '2.0',
                     'error': {'code': -32602, 'message': 'Сеанс не найден'},
@@ -404,64 +569,54 @@ def api():
                 })
             
             if is_past_session(session_data['session_date'], session_data['session_time']):
+                cur.close()
+                conn.close()
                 return jsonify({
                     'jsonrpc': '2.0',
                     'error': {'code': 2, 'message': 'Нельзя бронировать места на прошедший сеанс'},
                     'id': request_id
                 })
             
-            if current_app.config['DB_TYPE'] == 'postgres':
-                cur.execute('''
-                    SELECT b.*, u.full_name, u.id as user_id 
-                    FROM bookings_kino b 
-                    JOIN users_kino u ON b.user_id = u.id 
-                    WHERE b.session_id = %s AND b.seat_number = %s
-                ''', (session_id, seat_number))
-            else:
-                cur.execute('''
-                    SELECT b.*, u.full_name, u.id as user_id 
-                    FROM bookings_kino b 
-                    JOIN users_kino u ON b.user_id = u.id 
-                    WHERE b.session_id = ? AND b.seat_number = ?
-                ''', (session_id, seat_number))
+            cur.execute('''
+                SELECT b.*, u.full_name, u.id as user_id 
+                FROM bookings_kino b 
+                JOIN users_kino u ON b.user_id = u.id 
+                WHERE b.session_id = ? AND b.seat_number = ?
+            ''', (session_id, seat_number))
             
             existing_booking = cur.fetchone()
             if existing_booking:
+                cur.close()
+                conn.close()
                 return jsonify({
                     'jsonrpc': '2.0',
                     'error': {'code': 3, 'message': f'Место уже занято пользователем {existing_booking["full_name"]}'},
                     'id': request_id
                 })
             
-            if current_app.config['DB_TYPE'] == 'postgres':
-                cur.execute('SELECT COUNT(*) as count FROM bookings_kino WHERE session_id = %s AND user_id = %s',
-                          (session_id, session['user_id']))
-            else:
-                cur.execute('SELECT COUNT(*) as count FROM bookings_kino WHERE session_id = ? AND user_id = ?',
-                          (session_id, session['user_id']))
+            cur.execute('SELECT COUNT(*) as count FROM bookings_kino WHERE session_id = ? AND user_id = ?',
+                      (session_id, session['user_id']))
             
             result = cur.fetchone()
             user_bookings_count = result['count'] if result else 0
             
             if user_bookings_count >= 5:
+                cur.close()
+                conn.close()
                 return jsonify({
                     'jsonrpc': '2.0',
                     'error': {'code': 4, 'message': 'Нельзя забронировать более 5 мест на один сеанс'},
                     'id': request_id
                 })
             
-            if current_app.config['DB_TYPE'] == 'postgres':
-                cur.execute('''
-                    INSERT INTO bookings_kino (session_id, user_id, seat_number, booked_at)
-                    VALUES (%s, %s, %s, NOW())
-                ''', (session_id, session['user_id'], seat_number))
-            else:
-                cur.execute('''
-                    INSERT INTO bookings_kino (session_id, user_id, seat_number, booked_at)
-                    VALUES (?, ?, ?, datetime("now"))
-                ''', (session_id, session['user_id'], seat_number))
+            cur.execute('''
+                INSERT INTO bookings_kino (session_id, user_id, seat_number, booked_at)
+                VALUES (?, ?, ?, datetime("now"))
+            ''', (session_id, session['user_id'], seat_number))
             
             conn.commit()
+            cur.close()
+            conn.close()
             
             return jsonify({
                 'jsonrpc': '2.0',
@@ -476,15 +631,13 @@ def api():
             
         except Exception as e:
             conn.rollback()
+            cur.close()
+            conn.close()
             return jsonify({
                 'jsonrpc': '2.0',
                 'error': {'code': -32000, 'message': f'Ошибка сервера: {str(e)}'},
                 'id': request_id
             })
-            
-        finally:
-            cur.close()
-            conn.close()
     
     elif method == 'cancel_booking':
         if 'user_id' not in session:
@@ -501,24 +654,18 @@ def api():
         conn, cur = db_connect()
         
         try:
-            if current_app.config['DB_TYPE'] == 'postgres':
-                cur.execute('''
-                    SELECT b.*, u.full_name, u.id as user_id 
-                    FROM bookings_kino b 
-                    JOIN users_kino u ON b.user_id = u.id 
-                    WHERE b.session_id = %s AND b.seat_number = %s
-                ''', (session_id, seat_number))
-            else:
-                cur.execute('''
-                    SELECT b.*, u.full_name, u.id as user_id 
-                    FROM bookings_kino b 
-                    JOIN users_kino u ON b.user_id = u.id 
-                    WHERE b.session_id = ? AND b.seat_number = ?
-                ''', (session_id, seat_number))
+            cur.execute('''
+                SELECT b.*, u.full_name, u.id as user_id 
+                FROM bookings_kino b 
+                JOIN users_kino u ON b.user_id = u.id 
+                WHERE b.session_id = ? AND b.seat_number = ?
+            ''', (session_id, seat_number))
             
             existing_booking = cur.fetchone()
             
             if not existing_booking:
+                cur.close()
+                conn.close()
                 return jsonify({
                     'jsonrpc': '2.0',
                     'error': {'code': 3, 'message': 'Бронь не найдена'},
@@ -526,20 +673,20 @@ def api():
                 })
             
             if existing_booking['user_id'] != session['user_id']:
+                cur.close()
+                conn.close()
                 return jsonify({
                     'jsonrpc': '2.0',
                     'error': {'code': 5, 'message': f'Вы не можете отменить бронь другого пользователя ({existing_booking["full_name"]})'},
                     'id': request_id
                 })
             
-            if current_app.config['DB_TYPE'] == 'postgres':
-                cur.execute('DELETE FROM bookings_kino WHERE session_id = %s AND seat_number = %s',
-                          (session_id, seat_number))
-            else:
-                cur.execute('DELETE FROM bookings_kino WHERE session_id = ? AND seat_number = ?',
-                          (session_id, seat_number))
+            cur.execute('DELETE FROM bookings_kino WHERE session_id = ? AND seat_number = ?',
+                      (session_id, seat_number))
             
             conn.commit()
+            cur.close()
+            conn.close()
             
             return jsonify({
                 'jsonrpc': '2.0',
@@ -552,15 +699,13 @@ def api():
             
         except Exception as e:
             conn.rollback()
+            cur.close()
+            conn.close()
             return jsonify({
                 'jsonrpc': '2.0',
                 'error': {'code': -32000, 'message': f'Ошибка сервера: {str(e)}'},
                 'id': request_id
             })
-            
-        finally:
-            cur.close()
-            conn.close()
     
     return jsonify({
         'jsonrpc': '2.0',
