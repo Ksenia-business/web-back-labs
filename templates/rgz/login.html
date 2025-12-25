@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block lab %}Кинотеатр{% endblock %}
+
+{% block main %}
+<style>
+    .login-container {
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 40px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+        color: #8d6e63;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #5d4037;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+        box-sizing: border-box;
+    }
+    
+    .btn-submit {
+        width: 100%;
+        background: linear-gradient(135deg, #8d6e63 0%, #795548 100%);
+        color: white;
+        padding: 14px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-submit:hover {
+        background: linear-gradient(135deg, #795548 0%, #6d4c41 100%);
+        transform: translateY(-2px);
+    }
+    
+    .register-link {
+        text-align: center;
+        margin-top: 20px;
+        color: #666;
+    }
+    
+    .register-link a {
+        color: #8d6e63;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    
+    .flash-messages {
+        margin-bottom: 20px;
+    }
+    
+    .flash {
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+    
+    .flash.error {
+        background: #ffebee;
+        color: #c62828;
+        border: 1px solid #ffcdd2;
+    }
+    
+    .flash.success {
+        background: #e8f5e9;
+        color: #2e7d32;
+        border: 1px solid #c8e6c9;
+    }
+</style>
+
+<div class="login-container">
+    <h1>Вход в кинотеатр</h1>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+    
+    <form method="POST">
+        <div class="form-group">
+            <label for="username">Логин:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Пароль:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        
+        <button type="submit" class="btn-submit">Войти</button>
+    </form>
+    
+    <div class="register-link">
+        Нет аккаунта? <a href="/rgz/register/">Зарегистрироваться</a>
+    </div>
+</div>
+{% endblock %}

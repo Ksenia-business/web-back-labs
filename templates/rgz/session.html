@@ -1,0 +1,559 @@
+{% extends "base.html" %}
+
+{% block lab %}Кинотеатр{% endblock %}
+
+{% block script %}
+<script>
+function handleSeatClick(seatNumber, isBooked, isMyBooking, isPast) {
+    console.log('Клик по месту:', seatNumber);
+    
+    if (isPast) {
+        alert('Этот сеанс уже прошел');
+        return;
+    }
+    
+    if (isBooked) {
+        if (isMyBooking) {
+            if (confirm('Вы уверены, что хотите отменить бронирование места ' + seatNumber + '?')) {
+                cancelBooking(seatNumber);
+            }
+        } else {
+            const seatElement = document.querySelector(`[data-seat="${seatNumber}"]`);
+            const bookedByName = seatElement ? seatElement.getAttribute('data-booked-by-name') : 'другой пользователь';
+            alert('Место ' + seatNumber + ' уже занято\nЗабронировал(а): ' + bookedByName);
+        }
+    } else {
+        bookSeat(seatNumber);
+    }
+}
+
+function bookSeat(seatNumber) {
+    console.log('Бронирование места:', seatNumber);
+    
+    const seatElement = document.querySelector(`[data-seat="${seatNumber}"]`);
+    if (seatElement) {
+        seatElement.classList.add('loading');
+    }
+    
+    const requestData = {
+        jsonrpc: '2.0',
+        method: 'book_seat',
+        params: {
+            session_id: {{ session.id }},
+            seat_number: seatNumber
+        },
+        id: Date.now()
+    };
+    
+    fetch('/rgz/json-rpc-api/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Ответ от сервера:', data);
+        if (data.error) {
+            switch(data.error.code) {
+                case 1:
+                    alert('Вы не авторизованы, пожалуйста, войдите в систему');
+                    window.location.href = '/rgz/login/';
+                    break;
+                case 2:
+                    alert('Нельзя бронировать места на прошедший сеанс');
+                    break;
+                case 3:
+                    alert(data.error.message);
+                    break;
+                case 4:
+                    alert('Нельзя забронировать более 5 мест на один сеанс');
+                    break;
+                case -32602:
+                    alert('Сеанс не найден');
+                    break;
+                case -32000:
+                    alert('Ошибка сервера: ' + data.error.message);
+                    break;
+                default:
+                    alert('Ошибка: ' + data.error.message);
+            }
+        } else {
+            alert('✅ Место ' + seatNumber + ' успешно забронировано!');
+            window.location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка сети:', error);
+        alert('Ошибка сети');
+    })
+    .finally(() => {
+        if (seatElement) {
+            seatElement.classList.remove('loading');
+        }
+    });
+}
+
+function cancelBooking(seatNumber) {
+    console.log('Отмена брони места:', seatNumber);
+    
+    const seatElement = document.querySelector(`[data-seat="${seatNumber}"]`);
+    if (seatElement) {
+        seatElement.classList.add('loading');
+    }
+    
+    const requestData = {
+        jsonrpc: '2.0',
+        method: 'cancel_booking',
+        params: {
+            session_id: {{ session.id }},
+            seat_number: seatNumber
+        },
+        id: Date.now()
+    };
+    
+    fetch('/rgz/json-rpc-api/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Ответ от сервера:', data);
+        if (data.error) {
+            switch(data.error.code) {
+                case 1:
+                    alert('Вы не авторизованы');
+                    break;
+                case 3:
+                    alert('Бронь не найдена');
+                    break;
+                case 5:
+                    alert(data.error.message); 
+                    break;
+                case -32000:
+                    alert('Ошибка сервера: ' + data.error.message);
+                    break;
+                default:
+                    alert('Ошибка: ' + data.error.message);
+            }
+        } else {
+            alert('🗑️ Бронь места ' + seatNumber + ' отменена');
+            window.location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка сети:', error);
+        alert('Ошибка сети');
+    })
+    .finally(() => {
+        if (seatElement) {
+            seatElement.classList.remove('loading');
+        }
+    });
+}
+</script>
+{% endblock %}
+
+{% block main %}
+<style>
+    .session-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 30px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .session-header {
+        background: linear-gradient(135deg, #8d6e63 0%, #795548 100%);
+        color: white;
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .session-header h1 {
+        color: white;
+        margin: 0 0 10px 0;
+        font-size: 28px;
+        font-weight: 600;
+    }
+    
+    .session-info {
+        font-size: 16px;
+        margin-bottom: 5px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .session-past {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ff9800;
+        padding: 10px 15px;
+        border-radius: 8px;
+        margin-top: 15px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .seats-container {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .screen {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 20px;
+        background: linear-gradient(to right, #333, #555);
+        color: white;
+        border-radius: 10px;
+        font-weight: bold;
+        font-size: 20px;
+        letter-spacing: 8px;
+        text-transform: uppercase;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .screen:after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        animation: shine 3s infinite;
+    }
+    
+    .seats-grid {
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        gap: 12px;
+        margin-bottom: 40px;
+        justify-items: center;
+    }
+    
+    .seat {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        font-size: 16px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .seat:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .seat:active {
+        transform: translateY(-1px);
+    }
+    
+    .seat.loading {
+        animation: pulse 1.5s infinite;
+        cursor: wait;
+    }
+    
+    .seat-available {
+        background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+        color: white !important;
+    }
+    
+    .seat-available:hover {
+        background: linear-gradient(135deg, #388E3C 0%, #1B5E20 100%);
+    }
+    
+    .seat-booked {
+        background: linear-gradient(135deg, #F44336 0%, #C62828 100%);
+        color: white !important;
+        cursor: help;
+    }
+    
+    .seat-booked:hover {
+        background: linear-gradient(135deg, #D32F2F 0%, #B71C1C 100%);
+    }
+    
+    .seat-booked-self {
+        background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
+        color: white !important;
+        cursor: pointer;
+    }
+    
+    .seat-booked-self:hover {
+        background: linear-gradient(135deg, #1976D2 0%, #0D47A1 100%);
+    }
+    
+    .seat-disabled {
+        background: linear-gradient(135deg, #9E9E9E 0%, #616161 100%);
+        color: #E0E0E0;
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+    
+    .legend {
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        background: #f5f5f5;
+        padding: 8px 15px;
+        border-radius: 8px;
+    }
+    
+    .legend-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .user-bookings-info {
+        background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 25px;
+        text-align: center;
+        font-size: 16px;
+        border: 1px solid #BBDEFB;
+    }
+    
+    .back-btn {
+        text-align: center;
+        margin-top: 30px;
+        text-decoration: none;
+    }
+    
+    .btn-back {
+        padding: 12px 35px;
+        background: linear-gradient(135deg, #8d6e63 0%, #795548 100%);
+        color: white !important;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    
+    .btn-back:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        background: linear-gradient(135deg, #795548 0%, #5D4037 100%);
+        text-decoration: none;
+    }
+    
+    .flash-messages {
+        margin-bottom: 25px;
+    }
+    
+    .flash {
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        text-align: center;
+        font-weight: 600;
+        animation: slideIn 0.3s ease;
+    }
+    
+    .flash.error {
+        background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
+        color: #C62828  !important;
+        border: 1px solid #EF9A9A;
+    }
+    
+    .flash.success {
+        background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+        color: #2E7D32  !important;
+        border: 1px solid #A5D6A7;
+    }
+    
+    .flash.info {
+        background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+        color: #1565C0  !important;
+        border: 1px solid #90CAF9;
+    }
+    
+    .seat-info {
+        position: absolute;
+        top: -35px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #333;
+        color: white !important;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 12px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+        z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    
+    .seat-info:after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 5px solid #333;
+    }
+    
+    .seat:hover .seat-info {
+        opacity: 1;
+    }
+</style>
+
+<div class="session-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+    
+    <div class="session-header">
+        <h1>{{ session.movie_title }}</h1>
+        <div class="session-info">Дата: {{ session.session_date }}</div>
+        <div class="session-info">Время: {{ session.session_time }}</div>
+        {% if is_past %}
+        <div class="session-past">
+            ⚠️ Этот сеанс уже прошел. Бронирование недоступно.
+        </div>
+        {% endif %}
+    </div>
+    
+    {% if not is_past and session.user_id %}
+    <div class="user-bookings-info">
+        🎫 Вы забронировали: <strong>{{ user_bookings_count }} из 5</strong> мест на этот сеанс
+        {% if user_bookings_count > 0 %}
+            <div style="margin-top: 5px; font-size: 14px;">
+                {% for seat in my_seats %}
+                    <span style="background: #2196F3; color: white; padding: 2px 8px; border-radius: 4px; margin: 0 2px;">{{ seat }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    <div class="seats-container">
+        <div class="screen">ЭКРАН</div>
+        
+        <div class="seats-grid">
+            {% for seat in range(1, 31) %}
+                {% set booked_info = booked_seats.get(seat) %}
+                {% set is_my_booking = false %}
+                {% if booked_info and session.user_id %}
+                    {% set is_my_booking = (booked_info.user_id == session.user_id) %}
+                {% endif %}
+                
+                <div class="seat 
+                    {% if booked_info %}
+                        {% if is_my_booking %}
+                            seat-booked-self
+                        {% else %}
+                            seat-booked
+                        {% endif %}
+                    {% elif is_past %}
+                        seat-disabled
+                    {% else %}
+                        seat-available
+                    {% endif %}"
+                    data-seat="{{ seat }}"
+                    {% if booked_info %}
+                        data-booked-by-name="{{ booked_info.user_name }}"
+                        data-is-my="{{ 'true' if is_my_booking else 'false' }}"
+                    {% endif %}
+                    onclick="handleSeatClick(
+                        {{ seat }},
+                        {{ 'true' if booked_info else 'false' }},
+                        {{ 'true' if is_my_booking else 'false' }},
+                        {{ 'true' if is_past else 'false' }}
+                    )">
+                    {{ seat }}
+                    
+                    {% if booked_info %}
+                        <div class="seat-info">
+                            {% if is_my_booking %}
+                                👤 Ваше место
+                            {% else %}
+                                👤 Занято: {{ booked_info.user_name }}
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);"></div>
+                <span>Свободно</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);"></div>
+                <span>Ваше место</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #F44336 0%, #C62828 100%);"></div>
+                <span>Занято другим</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #9E9E9E 0%, #616161 100%);"></div>
+                <span>Недоступно</span>
+            </div>
+        </div>
+        
+        {% if not is_past %}
+        <div style="text-align: center; margin-top: 20px; color: #666; font-style: italic;">
+            🖱️ Наведите на занятое место, чтобы увидеть, кто его забронировал
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="back-btn">
+        <a href="/rgz/" class="btn-back">
+            Назад к расписанию
+        </a>
+    </div>
+</div>
+{% endblock %}

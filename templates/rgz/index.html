@@ -1,0 +1,354 @@
+{% extends "base.html" %}
+
+{% block lab %}Кинотеатр{% endblock %}
+
+{% block script %}
+<script>
+function deleteSession(sessionId) {
+    if (confirm('Вы уверены, что хотите удалить этот сеанс?')) {
+        window.location.href = `/rgz/admin/delete_session/${sessionId}/`;
+    }
+}
+</script>
+{% endblock %}
+
+{% block main %}
+<style>
+    .cinema-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 30px;
+    }
+    
+    h1 {
+        color: #8d6e63 !important;
+        text-align: center;
+        margin-bottom: 40px;
+        font-size: 36px;
+        font-weight: 600;
+    }
+    
+    .sessions-list {
+        background: linear-gradient(135deg, #fffaf5 0%, #fff8f0 100%);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(109, 76, 65, 0.08);
+        padding: 0;
+        margin: 0;
+        list-style: none;
+        margin-bottom: 30px;
+    }
+    
+    .session-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid #e8d5c4;
+        transition: all 0.3s ease;
+        background: white !important;
+    }
+    
+    .session-past {
+        background: linear-gradient(135deg, #f5f5f5 0%, #eeeeee 100%) !important;
+        color: #757575 !important;
+    }
+    
+    .session-past .session-info {
+        color: #757575 !important;
+    }
+    
+    .session-past .session-info strong {
+        color: #616161 !important;
+    }
+    
+    .session-item:last-child {
+        border-bottom: none;
+    }
+    
+    .session-item:hover {
+        background-color: #f9f5f1;
+    }
+    
+    .session-past:hover {
+        background: linear-gradient(135deg, #e0e0e0 0%, #e8e8e8 100%) !important;
+    }
+    
+    .session-info {
+        font-size: 15px;
+        color: #5d4037 !important;
+        font-weight: 500;
+        line-height: 1.4;
+    }
+    
+    .session-info strong {
+        font-size: 18px;
+        color: #8d6e63 !important;
+    }
+    
+    .session-meta {
+        margin-top: 8px;
+        font-size: 14px;
+        color: #666 !important;
+    }
+    
+    .button-container {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .btn-view {
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #a1887f 0%, #8d6e63 100%);
+        color: white !important;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .btn-view:hover {
+        background: linear-gradient(135deg, #8d6e63 0%, #795548 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(109, 76, 65, 0.3);
+        text-decoration: none;
+    }
+    
+    .btn-delete {
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #e57373 0%, #d32f2f 100%);
+        color: white !important;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .btn-delete:hover {
+        background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(213, 47, 47, 0.3);
+        text-decoration: none;
+    }
+    
+    .btn-admin {
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #64b5f6 0%, #2196f3 100%);
+        color: white !important;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .btn-admin:hover {
+        background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        text-decoration: none;
+    }
+    
+    .btn-view:active, .btn-delete:active, .btn-admin:active {
+        transform: translateY(0);
+    }
+    
+    .user-info-panel {
+        background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+        border-radius: 16px;
+        padding: 25px;
+        margin-bottom: 30px;
+        border: 2px solid #81c784;
+    }
+    
+    .user-info-panel h3 {
+        color: #2e7d32 !important;
+        margin: 0 0 15px 0;
+        font-size: 20px;
+        text-align: center;
+    }
+    
+    .user-info-content {
+        text-align: center;
+        font-size: 16px;
+        color: #1b5e20 !important;
+        margin-bottom: 15px;
+    }
+    
+    .user-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 15px;
+    }
+    
+    .back-btn {
+        text-align: center;
+        margin-top: 30px;
+    }
+    
+    .btn-back {
+        padding: 14px 40px;
+        background: linear-gradient(135deg, #a1887f 0%, #8d6e63 100%);
+        color: white !important;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-back:hover {
+        background: linear-gradient(135deg, #8d6e63 0%, #795548 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(109, 76, 65, 0.2);
+        text-decoration: none;
+    }
+    
+    .sessions-count {
+        text-align: center;
+        color: #8d6e63 !important;
+        font-size: 16px;
+        margin-bottom: 20px;
+        font-weight: 500;
+    }
+    
+    .flash-messages {
+        margin-bottom: 25px;
+    }
+    
+    .flash {
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        text-align: center;
+        font-weight: bold;
+    }
+    
+    .flash.error {
+        background: #ffebee;
+        color: #c62828 !important;
+        border: 1px solid #ffcdd2;
+    }
+    
+    .flash.success {
+        background: #e8f5e9;
+        color: #2e7d32 !important;
+        border: 1px solid #c8e6c9;
+    }
+    
+    .flash.info {
+        background: #e3f2fd;
+        color: #1565c0 !important;
+        border: 1px solid #bbdefb;
+    }
+    
+    .login-prompt {
+        background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+        border-radius: 16px;
+        padding: 30px;
+        margin-bottom: 30px;
+        text-align: center;
+        border: 2px solid #ffb74d;
+    }
+    
+    .login-prompt h3 {
+        color: #ef6c00 !important;
+        margin-bottom: 15px;
+    }
+    
+    .login-prompt p {
+        color: #e65100 !important;
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="cinema-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+    
+    {% if not session.get('login') %}
+    <div class="login-prompt">
+        <h3>Для бронирования мест необходимо войти в систему</h3>
+        <p>Зарегистрируйтесь или войдите, чтобы получить доступ к бронированию</p>
+        <div class="button-container" style="justify-content: center;">
+            <a href="/rgz/login/" class="btn-view">Войти</a>
+            <a href="/rgz/register/" class="btn-view">Регистрация</a>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if session.get('login') %}
+    <div class="user-info-panel">
+        <h3>Добро пожаловать, {{ session.get('full_name') }}!</h3>
+        <div class="user-info-content">
+            Логин: <strong>{{ session.get('login') }}</strong>
+            {% if session.get('is_admin') %}
+                <br><span style="color: #1976d2;">(Администратор)</span>
+            {% endif %}
+        </div>
+        <div class="user-actions">
+            <a href="/rgz/logout/" class="btn-delete">Выйти</a>
+            <a href="/rgz/delete_account/" class="btn-delete" onclick="return confirm('Вы уверены, что хотите удалить аккаунт?')">Удалить аккаунт</a>
+            {% if session.get('is_admin') %}
+                <a href="/rgz/admin/" class="btn-admin">Панель администратора</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <h1>🎬 Кинотеатр</h1>
+    
+    <div class="sessions-count">
+        Всего сеансов: {{ sessions|length }}
+    </div>
+    
+    <ul class="sessions-list" id="sessions-list">
+        {% for sess in sessions %}
+        <li class="session-item {% if sess.is_past %}session-past{% endif %}">
+            <div class="session-info">
+                <strong>{{ sess.movie_title }}</strong><br>
+                <div class="session-meta">
+                    📅 {{ sess.session_date }}<br>
+                    ⏰ {{ sess.session_time }}
+                    {% if sess.is_past %}
+                    <br><span style="color: #f44336;">(Прошедший сеанс)</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="button-container">
+                <a href="/rgz/session/{{ sess.id }}/" class="btn-view">
+                    {% if sess.is_past %}Просмотр{% else %}Выбрать места{% endif %}
+                </a>
+                {% if session.get('is_admin') %}
+                    <button onclick="deleteSession({{ sess.id }})" class="btn-delete">Удалить</button>
+                {% endif %}
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    
+    <div class="back-btn">
+        <a href="/" class="btn-back">Вернуться на главную</a>
+    </div>
+</div>
+{% endblock %}

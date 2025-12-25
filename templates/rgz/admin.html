@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+
+{% block lab %}Кинотеатр{% endblock %}
+
+{% block main %}
+<style>
+    .admin-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 30px;
+    }
+    
+    h1 {
+        color: #1976d2;
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .admin-section {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 40px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    
+    .section-title {
+        color: #1976d2;
+        border-bottom: 2px solid #1976d2;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        font-size: 24px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+    
+    .btn-submit {
+        background: #1976d2;
+        color: white !important;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .btn-submit:hover {
+        background: #1565c0;
+        transform: translateY(-2px);
+    }
+    
+    .sessions-table, .users-table, .bookings-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    
+    .sessions-table th, .users-table th, .bookings-table th {
+        background: #1976d2;
+        color: white;
+        padding: 12px;
+        text-align: left;
+    }
+    
+    .sessions-table td, .users-table td, .bookings-table td {
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .sessions-table tr:hover, .users-table tr:hover, .bookings-table tr:hover {
+        background: #f5f5f5;
+    }
+    
+    .btn-action {
+        padding: 6px 12px;
+        margin-right: 5px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        text-decoration: none;
+    }
+    
+    .btn-view {
+        background: #4caf50;
+        color: white !important;
+        text-decoration: none;
+    }
+
+    .btn-view:hover {
+        background: #4caf50;
+        color: white !important;
+        text-decoration: none;
+    }
+    
+    .btn-delete {
+        background: #f44336;
+        color: white !important;
+        text-decoration: none;
+    }
+    
+    .btn-cancel {
+        background: #ff9800;
+        color: white !important;
+        text-decoration: none;
+    }
+    
+    .back-btn {
+        text-align: center;
+        margin-top: 30px;
+        text-decoration: none;
+    }
+    
+    .btn-back {
+        padding: 12px 30px;
+        background: #1976d2;
+        color: white !important;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-back:hover {
+        background: #1565c0;
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
+    
+    .empty-message {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+        font-style: italic;
+    }
+    
+    .flash-messages {
+        margin-bottom: 20px;
+    }
+    
+    .flash {
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        text-align: center;
+        font-weight: bold;
+    }
+    
+    .flash.error {
+        background: #ffebee;
+        color: #c62828 !important;
+        border: 1px solid #ffcdd2;
+    }
+    
+    .flash.success {
+        background: #e8f5e9;
+        color: #2e7d32 !important;
+        border: 1px solid #c8e6c9;
+    }
+    
+    .flash.info {
+        background: #e3f2fd;
+        color: #1565c0 !important;
+        border: 1px solid #bbdefb;
+    }
+</style>
+
+<div class="admin-container">
+    <h1>Панель администратора</h1>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+    
+    <div class="admin-section">
+        <h2 class="section-title">Создать новый сеанс</h2>
+        <form action="/rgz/admin/create_session/" method="POST">
+            <div class="form-group">
+                <label for="movie_title">Название фильма:</label>
+                <input type="text" id="movie_title" name="movie_title" required>
+            </div>
+            <div class="form-group">
+                <label for="session_date">Дата сеанса:</label>
+                <input type="date" id="session_date" name="session_date" required>
+            </div>
+            <div class="form-group">
+                <label for="session_time">Время сеанса:</label>
+                <input type="time" id="session_time" name="session_time" required>
+            </div>
+            <button type="submit" class="btn-submit">Создать сеанс</button>
+        </form>
+    </div>
+    
+    <div class="admin-section">
+        <h2 class="section-title">Управление сеансами</h2>
+        {% if sessions %}
+        <table class="sessions-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Фильм</th>
+                    <th>Дата</th>
+                    <th>Время</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sess in sessions %}
+                <tr>
+                    <td>{{ sess.id }}</td>
+                    <td>{{ sess.movie_title }}</td>
+                    <td>{{ sess.session_date }}</td>
+                    <td>{{ sess.session_time }}</td>
+                    <td>
+                        <a href="/rgz/session/{{ sess.id }}/" class="btn-action btn-view">Просмотр</a>
+                        <button onclick="deleteSession({{ sess.id }})" class="btn-action btn-delete">Удалить</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-message">Нет созданных сеансов</div>
+        {% endif %}
+    </div>
+    
+    <div class="admin-section">
+        <h2 class="section-title">Бронирования</h2>
+        {% if bookings %}
+        <table class="bookings-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Сеанс</th>
+                    <th>Место</th>
+                    <th>Пользователь</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td>{{ booking.id }}</td>
+                    <td>{{ booking.movie_title }} (ID: {{ booking.session_id }})</td>
+                    <td>{{ booking.seat_number }}</td>
+                    <td>{{ booking.username }}</td>
+                    <td>
+                        <button onclick="cancelBooking({{ booking.id }})" class="btn-action btn-cancel">Отменить бронь</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-message">Нет активных бронирований</div>
+        {% endif %}
+    </div>
+    
+    <div class="back-btn">
+        <a href="/rgz/" class="btn-back">Назад в кинотеатр</a>
+    </div>
+</div>
+
+<script>
+function deleteSession(sessionId) {
+    if (confirm('Вы уверены, что хотите удалить этот сеанс? Все брони также будут удалены.')) {
+        window.location.href = `/rgz/admin/delete_session/${sessionId}/`;
+    }
+}
+
+function cancelBooking(bookingId) {
+    if (confirm('Вы уверены, что хотите отменить эту бронь?')) {
+        window.location.href = `/rgz/admin/cancel_booking/${bookingId}/`;
+    }
+}
+</script>
+{% endblock %}
